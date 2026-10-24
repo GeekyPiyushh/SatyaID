@@ -1,3 +1,4 @@
+import { studentStatus, studentStatusFields, profileView } from '../validators/student-status';
 import mongoose from 'mongoose';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
@@ -10,7 +11,7 @@ import { sealUpload, openUpload, uploadFingerprint, uploadFingerprintCandidates 
 import { capacity } from './management';
 import { objectId, name, code, day, apaar } from '../validators/batch2';
 const optional = (schema: z.ZodType) => z.union([schema, z.literal('')]).optional();
-const rowSchema = z.object({ institutionStudentId: code, displayName: name, dateOfBirth: optional(day), apaarId: optional(apaar), allocation: objectId, academicYear: objectId, admissionDate: day, startsOn: day, endsOn: optional(day), entryType: z.enum(['REGULAR', 'LATERAL_ENTRY', 'TRANSFER']) }).strict().refine(v => !v.endsOn || v.startsOn <= v.endsOn);
+const rowSchema = z.object({ institutionStudentId: code, displayName: name, dateOfBirth: optional(day), apaarId: optional(apaar), allocation: objectId, academicYear: objectId, admissionDate: day, startsOn: day, endsOn: optional(day), entryType: z.enum(['REGULAR', 'LATERAL_ENTRY', 'TRANSFER']), ...Object.fromEntries(studentStatusFields.map(key => [key, optional(studentStatus)])) }).strict().refine(v => !v.endsOn || v.startsOn <= v.endsOn);
 const hidden = 'status totalRows validRows invalidRows committedRows failureCode attempts institution payloadPurgedAt createdAt updatedAt';
 export async function jobAccess(user: any, id: string) {
  const job = await m.UploadJob.findById(id).select(hidden);
@@ -47,7 +48,11 @@ async function preview(job: any, user: any, renew: () => Promise<void>) {
  for (let i = 0; i < rows.length; i++) {
   await renew(); const row = rows[i]!; const parsed = rowSchema.safeParse(row); const errors: string[] = [], warnings: string[] = [];
   let data: any = parsed.success ? Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== '')) : row;
-  if (!parsed.success) errors.push(parsed.error.issues.some(issue => issue.path[0] === 'apaarId') ? 'INVALID_APAAR_FORMAT' : 'INVALID_ROW_FIELDS');
+  if (!parsed.success) {
+   if (parsed.error.issues.some(issue => issue.path[0] === 'apaarId')) errors.push('INVALID_APAAR_FORMAT');
+   if (parsed.error.issues.some(issue => studentStatusFields.includes(issue.path[0] as any))) errors.push('INVALID_STUDENT_STATUS');
+   if (!errors.length) errors.push('INVALID_ROW_FIELDS');
+  }
   if (seenRoll.has(row.institutionStudentId!)) errors.push('DUPLICATE_ROW'); seenRoll.add(row.institutionStudentId!);
   try {
    if (row.apaarId) {
@@ -65,6 +70,7 @@ async function preview(job: any, user: any, renew: () => Promise<void>) {
     if (new Date(data.admissionDate) < context.year.startsOn! || new Date(data.admissionDate) > context.year.endsOn! || new Date(data.startsOn) < context.year.startsOn! || new Date(data.startsOn) > context.year.endsOn!) errors.push('INVALID_ADMISSION_DATE');
     const profile = await m.StudentInstitution.findOne({ institution: job.institution, institutionStudentId: data.institutionStudentId });
     if (profile) {
+     if (studentStatusFields.some(key => data[key] !== undefined && profileView(profile)[key] !== data[key])) errors.push('CONFLICTING_STUDENT_STATUS');
      if (profile.displayName !== data.displayName || data.dateOfBirth && profile.dateOfBirth?.toISOString().slice(0, 10) !== data.dateOfBirth) errors.push('CONFLICTING_STUDENT_DETAILS');
      else if (data.existingStudent && data.existingStudent !== String(profile.student)) errors.push('IDENTITY_REVIEW_REQUIRED');
      else { data.existingStudent = String(profile.student); if (data.apaarId && !await m.ApaarIdentityVault.exists({ student: profile.student, ...identityLookupQuery(data.apaarId) })) errors.push('IDENTITY_REVIEW_REQUIRED'); }
@@ -101,9 +107,11 @@ async function commit(job: any, user: any, renew: () => Promise<void>) {
     await writeScope(user, String(job.institution));
     let studentId = data.existingStudent;
     if (studentId) {
-     if (!await m.StudentInstitution.exists({ student: studentId, institution: job.institution, institutionStudentId: data.institutionStudentId, status: 'ACTIVE' }).session(session)) throw new AppError(409, 'STUDENT_ASSOCIATION_CHANGED', 'Student association changed');
+     const profile = await m.StudentInstitution.findOne({ student: studentId, institution: job.institution, institutionStudentId: data.institutionStudentId, status: 'ACTIVE' }).session(session);
+     if (!profile) throw new AppError(409, 'STUDENT_ASSOCIATION_CHANGED', 'Student association changed');
+     if (studentStatusFields.some(key => data[key] !== undefined && profileView(profile)[key] !== data[key])) throw new AppError(409, 'STUDENT_STATUS_CHANGED', 'Institution student declarations changed since preview');
     } else {
-     const created = await createStudent(user, { institution: String(job.institution), institutionStudentId: data.institutionStudentId, displayName: data.displayName, dateOfBirth: data.dateOfBirth, apaarId: data.apaarId }, session); studentId = String(created.studentId);
+     const created = await createStudent(user, { institution: String(job.institution), institutionStudentId: data.institutionStudentId, displayName: data.displayName, dateOfBirth: data.dateOfBirth, apaarId: data.apaarId, ...Object.fromEntries(studentStatusFields.filter(key => data[key] !== undefined).map(key => [key, data[key]])) }, session); studentId = String(created.studentId);
     }
     const e = await createEnrolment(user, { student: studentId, allocation: data.allocation, institutionStudentId: data.institutionStudentId, admissionDate: data.admissionDate, startsOn: data.startsOn, endsOn: data.endsOn, entryType: data.entryType, idempotencyKey: `upload:${job._id}:${current.rowNumber}` }, session);
     await changeAdmission(user, String(e._id), 'activate', session);

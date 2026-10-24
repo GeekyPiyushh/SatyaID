@@ -1,8 +1,10 @@
+import { grantCertificatePrintConsent, revokeCertificatePrintConsent } from '../services/certificate-print';
+import { printConsentSchema } from '../validators/certificate-print';
 import { createRateLimiter } from '../utils/rate-limit';
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
-import { authenticate } from '../middlewares/auth';
+import { authenticate, requireRoles } from '../middlewares/auth';
 import { validate } from '../middlewares/validate';
 import { enrolmentSchema, objectId, pagination, day, code } from '../validators/batch2';
 import * as service from '../services/admissions';
@@ -36,3 +38,11 @@ enrolmentRouter.patch('/:id', validate(z.object({ endsOn: day.optional(), status
  }));
 });
 for (const operation of ['activate', 'withdraw'] as const) enrolmentRouter.post(`/:id/${operation}`, validate(z.object({}).strict()), async (req, res) => reply(res, await service.changeAdmission(res.locals.user, String(req.params.id), operation)));
+
+enrolmentRouter.post('/:id/certificate-print-consent', requireRoles('STUDENT'), validate(printConsentSchema), async (req, res) => {
+ res.setHeader('Cache-Control', 'no-store'); res.status(201);
+ reply(res, await grantCertificatePrintConsent(res.locals.user, String(req.params.id), res.locals.validated.expiresInSeconds));
+});
+enrolmentRouter.post('/:id/certificate-print-consent/revoke', requireRoles('STUDENT'), validate(z.object({}).strict()), async (req, res) => {
+ res.setHeader('Cache-Control', 'no-store'); reply(res, await revokeCertificatePrintConsent(res.locals.user, String(req.params.id)));
+});

@@ -28,3 +28,6 @@ Apply only to known synthetic data: set ALLOW_RETENTION_APPLY=true and RETENTION
 Each successful apply appends RETENTION_PAYLOAD_PURGE audit metadata, never private payloads. Keep the JSON output in an access-controlled operations log. Purged payloads cannot be recovered through retry; a corrected new upload/new key is required. Fingerprints remain for idempotent content matching. Do not use cleanup as identity correction or academic-history erasure.
 
 For future production rollout: approve a category-specific schedule, legal holds, reviewer identity and scoped change ticket; verify encrypted backup/restore and key availability; independently review an export of dry-run counts; implement separately authorized production tooling. That workflow is PLANNED, not enabled by this batch.
+
+
+PS-compliance addition: CertificatePrintConsent grants/revocations are consent history and are never purged by the payload cleanup utility. CertificatePrintAuthorization and its audit events remain administrative history. Full print payloads are generated on demand, never stored as reports/jobs or plaintext exports. Authorized printed copies cannot be recalled.

@@ -78,3 +78,8 @@ Malformed inputs: 422 VALIDATION_ERROR; excessive lifetime: 422 LIFETIME_EXCEEDE
 ## Trust and remaining work
 
 The trust root is existing account linkage and institution submissions, not official APAAR access. Legal-basis/privacy notices, employer onboarding proof, MFA, distributed abuse controls and an approved production retention policy remain deployment prerequisites. Batch 4 implements explicit browser cookie/CSRF transport and guarded synthetic retention; see SECURITY_HARDENING.md and DATA_RETENTION_POLICY.md. Do not log invitations, QR tokens, authorization headers or actual claim payloads. Audit/VerificationEvent store actor/claim-type/outcome metadata, not the claims themselves.
+
+
+## Separate institution print consent
+
+The PS-compliance print-support interface uses a separate CertificatePrintConsent scoped to the student's own enrolment/institution and a regulator-recorded CertificatePrintAuthorization. It does not extend any employer claim enum, invitation, ConsentGrant or DigitalCredential. Employers still cannot retrieve raw APAAR, student categories or institution print payloads. See root frontend master compliance handoff for the four guarded print operations.

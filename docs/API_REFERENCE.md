@@ -115,4 +115,9 @@ All preserve the existing version prefix, strict schemas, JWT/RBAC and success/e
 
 ## Batch 4 final integration update
 
-The authoritative complete 98-operation contract is now [openapi.yaml](openapi.yaml), validated OpenAPI3.1, with [frontend master](../FRONTEND_INTEGRATION_MASTER.md) section3. Explicit browser routes `/api/v1/auth/browser/{csrf,login,refresh,logout}` supplement JSON-only non-browser auth. Regenerate with `npm run api:generate`; parity check `npm run api:check`. Downloads return raw JSON/CSV. Earlier examples remain feature-specific summaries.
+The authoritative complete 102-operation contract is now [openapi.yaml](openapi.yaml), validated OpenAPI3.1, with [frontend master](../FRONTEND_INTEGRATION_MASTER.md) section3. Explicit browser routes `/api/v1/auth/browser/{csrf,login,refresh,logout}` supplement JSON-only non-browser auth. Regenerate with `npm run api:generate`; parity check `npm run api:check`. Downloads return raw JSON/CSV. Earlier examples remain feature-specific summaries.
+
+
+## PS compliance contract additions
+
+Profile create/read/PATCH/list support independent nriStatus/ociStatus/foreignNationalStatus (YES/NO/UNKNOWN); identityAssessment distinguishes missing/link-format and verification. Imports accept exact10 or13 columns; the template download is13. STUDENT_STATUS_DISTRIBUTION report and IDENTITY_STATUS identifierPresence summaries expose safe scoped aggregates. Four new POST operations: `/institutions/:id/certificate-print-authorization`, `/enrolments/:id/certificate-print-consent`, `/enrolments/:id/certificate-print-consent/revoke`, `/students/:id/certificate-print-data`. Default print response redacts APAAR; full disclosure requires current institution authority, owning linked student consent and active-record eligibility. See FINAL_PS_COMPLIANCE_AUDIT.md and generated OpenAPI/shared types.

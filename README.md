@@ -114,3 +114,8 @@ Analytics, signals and operational scores use currently registered data, not a n
 ## Batch 4 final integration update
 
 The final backend Phases 01–15 are implemented for documented development/demo use. Start frontend work at [FRONTEND_INTEGRATION_MASTER.md](FRONTEND_INTEGRATION_MASTER.md). Browser cookie/CSRF auth, guarded retention, reconciliation, Docker/local Compose, OpenAPI3.1, Postman and generated TypeScript contracts are covered in Batch4. See [deployment](docs/DEPLOYMENT_RUNBOOK.md) and [verified quality evidence](docs/TEST_AND_QUALITY_REPORT.md). No government certification, production approval or national-scale claim is made.
+
+
+## Original-problem-statement compliance closure
+
+See [FINAL_PS_COMPLIANCE_AUDIT](docs/FINAL_PS_COMPLIANCE_AUDIT.md) for the10-requirement source audit, independent NRI/OCI/FN profile declarations, compatible10/13-column imports, explicit APAAR review policy, regulatory status reports and guarded certificate print-data interface. Current API catalog has102 operations. Full print data requires separate student consent and operator-reviewed institutional permission; no degree or official APAAR certificate is issued. The frontend master documents all new integration steps.

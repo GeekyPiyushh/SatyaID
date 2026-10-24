@@ -1,3 +1,4 @@
+import { identityPresenceCounts, studentStatusDistribution } from './student-status';
 import mongoose from 'mongoose';
 import { createHash, randomUUID } from 'node:crypto';
 import * as m from '../../models';
@@ -8,7 +9,7 @@ import { prevalidate } from './compliance';
 import { institutionScope } from '../../middlewares/auth';
 import { audit } from '../student';
 import type { AnalyticsFilters } from '../../validators/regulatory';
-export const reportTypes = ['ENROLMENT_SUMMARY', 'INTAKE_UTILIZATION', 'CATEGORY_UTILIZATION', 'UPLOAD_ERRORS', 'OVERLAP_CASES', 'IDENTITY_STATUS', 'ACADEMIC_YEAR_COMPLIANCE'] as const;
+export const reportTypes = ['ENROLMENT_SUMMARY', 'INTAKE_UTILIZATION', 'CATEGORY_UTILIZATION', 'UPLOAD_ERRORS', 'OVERLAP_CASES', 'IDENTITY_STATUS', 'ACADEMIC_YEAR_COMPLIANCE', 'STUDENT_STATUS_DISTRIBUTION'] as const;
 export const REPORT_LIMIT = 500;
 export function csvCell(value: unknown) {
  const text = value === undefined || value === null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
@@ -35,7 +36,10 @@ async function reportData(user: any, job: any, session: mongoose.ClientSession) 
  const f = job.filters as AnalyticsFilters;
  const metadata: any = { title: 'SatyaID regulatory readiness report', reportType: job.reportType, generatorVersion: 'satyaid-reports-v1', generatedAt: new Date().toISOString(), academicYear: f.academicYear ?? null, institution: f.institution ?? null, filters: f, consistency: 'Source reads use one MongoDB snapshot transaction. generatedAt is a completion marker, not an exact source-event cutoff.', officialFiling: false, source: 'Institution-submitted records registered in SatyaID' };
  let rows: any[] = [], summary: any;
- if (['INTAKE_UTILIZATION', 'CATEGORY_UTILIZATION'].includes(job.reportType)) {
+ if (job.reportType === 'STUDENT_STATUS_DISTRIBUTION') {
+  rows = await studentStatusDistribution(f, session); metadata.truncated = false;
+  summary = { definition: 'Current institution-submitted NRI/OCI/FN declarations on institution profiles joined to selected authoritative enrolments, grouped by current enrolment state. Legacy/missing profile values are UNKNOWN. Independent statuses may all be YES; no seat eligibility is inferred.', counts: 'enrolmentCount counts selected enrolments; distinctStudents deduplicates canonical students within each row and is not additive across status groups/institutions.', statusVerification: 'INSTITUTION_SUBMITTED_NOT_INDEPENDENTLY_VERIFIED', seatCategoryRelationship: 'NONE; approved allocation/category and counters remain authoritative' };
+ } else if (['INTAKE_UTILIZATION', 'CATEGORY_UTILIZATION'].includes(job.reportType)) {
   const result = await allocationRows(f, REPORT_LIMIT, session); rows = result.rows; metadata.truncated = result.truncated; metadata.ruleVersions = result.rows.flatMap(row => row.rules); summary = { definition: 'Rows are approved allocation pools; quota ceilings do not grant extra approved seats', detailLimit: REPORT_LIMIT };
  } else if (job.reportType === 'ACADEMIC_YEAR_COMPLIANCE') {
   const result = await prevalidate(user, f, session); rows = result.findings; metadata.truncated = result.truncated; metadata.ruleVersion = result.ruleVersion; summary = { coverage: result.coverage, definition: result.definition };
@@ -44,7 +48,7 @@ async function reportData(user: any, job: any, session: mongoose.ClientSession) 
  } else if (job.reportType === 'UPLOAD_ERRORS') {
   rows = await aggregate(m.UploadJob, [...uploadStages(f), { $lookup: { from: m.UploadRowResult.collection.name, localField: '_id', foreignField: 'job', pipeline: [{ $match: { status: { $in: ['INVALID', 'FAILED'] } } }, { $unwind: '$errorCodes' }, { $group: { _id: { status: '$status', errorCode: '$errorCodes' }, count: { $sum: 1 } } }], as: '_errors' } }, { $unwind: '$_errors' }, { $group: { _id: '$_errors._id', count: { $sum: '$_errors.count' } } }, { $sort: { '_id.errorCode': 1 } }, { $limit: REPORT_LIMIT + 1 }], session); metadata.truncated = rows.length > REPORT_LIMIT; rows = rows.slice(0, REPORT_LIMIT); summary = { definition: 'Error occurrences; a row may contribute multiple error codes. Only job institution/state/createdAt filters apply.' };
  } else if (['ENROLMENT_SUMMARY', 'IDENTITY_STATUS'].includes(job.reportType)) {
-  const stats = await overview(user, f, session); rows = job.reportType === 'IDENTITY_STATUS' ? stats.identityStatusDistribution : stats.enrolmentsByStatus; summary = stats; metadata.truncated = false;
+  const stats = await overview(user, f, session); rows = job.reportType === 'IDENTITY_STATUS' ? stats.identityStatusDistribution : stats.enrolmentsByStatus; summary = job.reportType === 'IDENTITY_STATUS' ? { ...stats, identifierPresence: await identityPresenceCounts(f, session), admissionIdentityPolicy: 'ALLOW_WITH_REVIEW_FLAGS_V1', officialVerificationAvailable: false } : stats; metadata.truncated = false;
  } else throw new AppError(422, 'UNSUPPORTED_REPORT_TYPE', 'Report type is unsupported');
  return { metadata, summary, rows };
 }
@@ -61,9 +65,10 @@ export async function processNextReport() {
    if (!current) throw new AppError(409, 'REPORT_LEASE_LOST', 'Report lease was reassigned');
    const data = await reportData(user, current, session);
    const keys = Array.from(new Set(data.rows.flatMap(row => Object.keys(row))));
-   const headers = ['reportLabel', 'reportType', 'generatedAt', 'generatorVersion', 'source', 'officialFiling', 'scope', 'consistency', 'coverage', 'truncated', ...keys];
+   const identityColumns = job.reportType === 'IDENTITY_STATUS' ? ['identifierPresence'] : [];
+   const headers = ['reportLabel', 'reportType', 'generatedAt', 'generatorVersion', 'source', 'officialFiling', 'scope', 'consistency', 'coverage', 'truncated', ...identityColumns, ...keys];
    const rows = data.rows.length ? data.rows : [{}];
-   const content = Buffer.from(job.format === 'JSON' ? JSON.stringify(data) : [headers.map(csvCell).join(','), ...rows.map(row => [data.metadata.title, job.reportType, data.metadata.generatedAt, data.metadata.generatorVersion, data.metadata.source, false, job.filters, data.metadata.consistency, data.summary?.definition ?? data.summary?.coverage ?? data.summary?.denominatorNotes, Boolean(data.metadata.truncated), ...keys.map(k => row[k])].map(csvCell).join(','))].join('\n'));
+   const content = Buffer.from(job.format === 'JSON' ? JSON.stringify(data) : [headers.map(csvCell).join(','), ...rows.map(row => [data.metadata.title, job.reportType, data.metadata.generatedAt, data.metadata.generatorVersion, data.metadata.source, false, job.filters, data.metadata.consistency, data.summary?.definition ?? data.summary?.coverage ?? data.summary?.denominatorNotes, Boolean(data.metadata.truncated), ...(identityColumns.length ? [data.summary.identifierPresence] : []), ...keys.map(k => row[k])].map(csvCell).join(','))].join('\n'));
    await m.ReportJob.updateOne({ _id: job._id, leaseToken }, { $set: { status: 'COMPLETED', generatedAt: new Date(), metadata: data.metadata, content, contentDigest: createHash('sha256').update(content).digest('hex') }, $unset: { leaseToken: 1, leaseUntil: 1 } }, { session });
    await audit(user, 'REPORT_GENERATED', 'ReportJob', job._id, session, job.institution);
   }, { readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' } });

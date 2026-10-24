@@ -54,3 +54,5 @@ ConsentGrant.schema.removeIndex({ request: 1 });
 ConsentGrant.schema.index({ request: 1 }, { unique: true, name: 'consent_grant_unique' });
 
 export * from './batch4';
+
+export * from './compliance';

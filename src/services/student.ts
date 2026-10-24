@@ -1,3 +1,5 @@
+import { profileView, studentStatusFields } from '../validators/student-status';
+import { assessIdentity } from './identity-policy';
 import mongoose, { ClientSession } from 'mongoose';
 import { createHmac } from 'node:crypto';
 import * as m from '../models';
@@ -53,13 +55,13 @@ export async function createStudent(user: any, data: any, session?: ClientSessio
   student = await m.Student.findById(data.existingStudent).session(session);
   if (!student) throw new AppError(404, 'NOT_FOUND', 'Student not found');
  } else { [student] = await m.Student.create([{ displayName: data.displayName }], { session }); }
- const [profile] = await m.StudentInstitution.create([{ student: student!._id, institution: data.institution, institutionStudentId: data.institutionStudentId, displayName: data.displayName, dateOfBirth: data.dateOfBirth }], { session });
+ const [profile] = await m.StudentInstitution.create([{ student: student!._id, institution: data.institution, institutionStudentId: data.institutionStudentId, displayName: data.displayName, dateOfBirth: data.dateOfBirth, ...Object.fromEntries(studentStatusFields.filter(key => data[key] !== undefined).map(key => [key, data[key]])) }], { session });
  if (data.apaarId) await linkIdentity(user, String(student!._id), data.institution, data.apaarId, session);
  await audit(user, 'STUDENT_REGISTERED', 'Student', student!._id, session, data.institution);
- return { studentId: student!._id, profile, identityStatus: student!.identityStatus };
+ return { studentId: student!._id, profile: profileView(profile), identityStatus: student!.identityStatus, identityAssessment: await assessIdentity(String(student!._id), String(student!.identityStatus), session) };
 }
 export async function readStudent(user: any, id: string, institution?: string) {
  const access = await studentAccess(user, id, institution);
  await audit(user, 'STUDENT_READ', 'Student', id, undefined, institution);
- return { studentId: access.student._id, identityStatus: access.student.identityStatus, profiles: access.profile ? [access.profile] : await m.StudentInstitution.find({ student: id }).select('-__v').lean() };
+ return { studentId: access.student._id, identityStatus: access.student.identityStatus, identityAssessment: await assessIdentity(id, String(access.student.identityStatus)), profiles: (access.profile ? [access.profile] : await m.StudentInstitution.find({ student: id }).select('-__v').lean()).map(profileView) };
 }

@@ -1,4 +1,4 @@
-# Final test and quality report — 24 October 2026
+# Batch 4 baseline test and quality report — 24 October 2026
 
 All claims below describe actual local development/demo checks, not production certification. Preserved base `6f58d9d0f20ee19f28ee9a0324e1ba2f8c58b4a4`; final review branch `PIYUSH`. Final commit/push status is reported from Git separately; this report does not imply a cloud deployment or merge.
 
@@ -60,3 +60,6 @@ Raw safe measurements: [batch4-http-measurements.json](evidence/batch4-http-meas
 Only safe source/tests/docs/config examples and specifically requested generated OpenAPI/Postman/TS artifacts are eligible for Git. Excluded: actual .env files, node_modules, dist, coverage, private keys, dumps/archives, database volumes, temporary logs, token/cookie/password values and real student data. Synthetic fixtures use example.invalid and explicitly artificial zero-padded identifiers; no real student dataset was supplied or published. Pattern scans are evidence of a review, not proof that every secret format is detectable.
 
 Official APAAR verification remains MOCKED, disabled in production. No public student lookup or government-certified credential. Memory rate limits do not coordinate replicas. JWT/CSRF rotations require session re-login; historic identity/upload/audit rings are supported but bulk re-encryption is not implemented. The identity registry mutex and bounded test datasets do not establish national scale. Reconciliation scans max500 per source and reports truncation; cleanup applies only to explicitly enabled synthetic databases. Production privacy/legal policy, authenticated private Mongo/Atlas, independent security assessment, managed keys, distributed limits, monitoring and full recovery drills remain required. Frontend gaps (discovery/directory/account provisioning/graduation/PDF) are explicitly documented in the master.
+
+
+Later PS-compliance changes are verified separately in FINAL_PS_COMPLIANCE_AUDIT.md. This document preserves the measured105-test/98-operation Batch4 baseline and operational evidence; it should not be read as the latest compliance-suite total.

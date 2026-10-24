@@ -15199,6 +15199,661 @@ paths:
               properties: {}
               additionalProperties: false
             example: {}
+  /api/v1/enrolments/{id}/certificate-print-consent:
+    post:
+      operationId: post_api_v1_enrolments_id_certificate_print_consent
+      summary: POST /api/v1/enrolments/{id}/certificate-print-consent
+      description: Owning active linked STUDENT only; grant for ACTIVE enrolment,
+        expiry up to86400sec; revoke all own grants for enrolment, history
+        retained.  Application semantic refinements (date ordering, claim
+        subsets, current ownership/capacity) remain server-validated.
+      tags:
+        - enrolments
+      x-roles:
+        - STUDENT
+      x-scope: Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry
+        up to86400sec; revoke all own grants for enrolment, history retained.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-fA-F0-9]{24}$
+      responses:
+        "201":
+          description: Success; synthetic illustrative response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      consentId:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      enrolment:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      institution:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      expiresAt:
+                        type: string
+                        format: date-time
+                      purpose:
+                        const: CERTIFICATE_PRINT_PREPARATION
+                      notice:
+                        type: string
+                    required:
+                      - consentId
+                      - enrolment
+                      - institution
+                      - expiresAt
+                      - purpose
+                      - notice
+                required:
+                  - success
+                  - message
+                  - data
+              example:
+                success: true
+                message: Synthetic example
+                data:
+                  consentId: "000000000000000000000001"
+                  enrolment: "000000000000000000000001"
+                  institution: "000000000000000000000001"
+                  expiresAt: 2026-08-01T00:00:00Z
+                  purpose: CERTIFICATE_PRINT_PREPARATION
+                  notice: Synthetic example
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Safe generated correlation ID
+            Cache-Control:
+              schema:
+                const: no-store
+              description: Never persist sensitive print payloads or send to analytics
+        "400":
+          description: Malformed JSON/request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "401":
+          description: Authentication/session unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "403":
+          description: Role, origin, CSRF or object scope denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "404":
+          description: Resource unavailable; may conceal authorization
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "409":
+          description: State, capacity, duplicate or idempotency conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "413":
+          description: Body/file size exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "415":
+          description: Unsupported encoding/media type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "422":
+          description: Strict input validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "429":
+          description: Rate limited; use Retry-After
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "500":
+          description: Unexpected internal failure; no private diagnostics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "503":
+          description: Database, provider or key unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresInSeconds:
+                  default: 900
+                  type: integer
+                  minimum: 60
+                  maximum: 86400
+              additionalProperties: false
+            example:
+              expiresInSeconds: 900
+  /api/v1/enrolments/{id}/certificate-print-consent/revoke:
+    post:
+      operationId: post_api_v1_enrolments_id_certificate_print_consent_revoke
+      summary: POST /api/v1/enrolments/{id}/certificate-print-consent/revoke
+      description: Owning active linked STUDENT only; grant for ACTIVE enrolment,
+        expiry up to86400sec; revoke all own grants for enrolment, history
+        retained.  Application semantic refinements (date ordering, claim
+        subsets, current ownership/capacity) remain server-validated.
+      tags:
+        - enrolments
+      x-roles:
+        - STUDENT
+      x-scope: Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry
+        up to86400sec; revoke all own grants for enrolment, history retained.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-fA-F0-9]{24}$
+      responses:
+        "200":
+          description: Success; synthetic illustrative response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      revoked:
+                        const: true
+                    required:
+                      - revoked
+                required:
+                  - success
+                  - message
+                  - data
+              example:
+                success: true
+                message: Synthetic example
+                data:
+                  revoked: true
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Safe generated correlation ID
+            Cache-Control:
+              schema:
+                const: no-store
+              description: Never persist sensitive print payloads or send to analytics
+        "400":
+          description: Malformed JSON/request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "401":
+          description: Authentication/session unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "403":
+          description: Role, origin, CSRF or object scope denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "404":
+          description: Resource unavailable; may conceal authorization
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "409":
+          description: State, capacity, duplicate or idempotency conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "413":
+          description: Body/file size exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "415":
+          description: Unsupported encoding/media type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "422":
+          description: Strict input validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "429":
+          description: Rate limited; use Retry-After
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "500":
+          description: Unexpected internal failure; no private diagnostics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "503":
+          description: Database, provider or key unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+            example: {}
   /api/v1/enrolments/{id}/history:
     get:
       operationId: get_api_v1_enrolments_id_history
@@ -17355,6 +18010,368 @@ paths:
               name: Synthetic example
               state: Synthetic example
               status: ACTIVE
+  /api/v1/institutions/{id}/certificate-print-authorization:
+    post:
+      operationId: post_api_v1_institutions_id_certificate_print_authorization
+      summary: POST /api/v1/institutions/{id}/certificate-print-authorization
+      description: AICTE operator-reviewed institution print permission only;
+        degree-awarding powers are not independently validated.  Application
+        semantic refinements (date ordering, claim subsets, current
+        ownership/capacity) remain server-validated.
+      tags:
+        - institutions
+      x-roles:
+        - AICTE_ADMIN
+      x-scope: AICTE operator-reviewed institution print permission only;
+        degree-awarding powers are not independently validated.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-fA-F0-9]{24}$
+      responses:
+        "200":
+          description: Success; synthetic illustrative response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      authorizationId:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      institution:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      status:
+                        type: string
+                        enum:
+                          - APPROVED
+                          - SUSPENDED
+                      expiresAt:
+                        type: string
+                        format: date-time
+                      authorityReference:
+                        type: string
+                      degreeAwardingStatus:
+                        const: NOT_INDEPENDENTLY_VERIFIED
+                      notice:
+                        type: string
+                    required:
+                      - authorizationId
+                      - institution
+                      - status
+                      - expiresAt
+                      - authorityReference
+                      - degreeAwardingStatus
+                      - notice
+                required:
+                  - success
+                  - message
+                  - data
+              example:
+                success: true
+                message: Synthetic example
+                data:
+                  authorizationId: "000000000000000000000001"
+                  institution: "000000000000000000000001"
+                  status: APPROVED
+                  expiresAt: 2026-08-01T00:00:00Z
+                  authorityReference: Synthetic example
+                  degreeAwardingStatus: NOT_INDEPENDENTLY_VERIFIED
+                  notice: Synthetic example
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Safe generated correlation ID
+            Cache-Control:
+              schema:
+                const: no-store
+              description: Never persist sensitive print payloads or send to analytics
+        "400":
+          description: Malformed JSON/request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "401":
+          description: Authentication/session unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "403":
+          description: Role, origin, CSRF or object scope denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "404":
+          description: Resource unavailable; may conceal authorization
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "409":
+          description: State, capacity, duplicate or idempotency conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "413":
+          description: Body/file size exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "415":
+          description: Unsupported encoding/media type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "422":
+          description: Strict input validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "429":
+          description: Rate limited; use Retry-After
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "500":
+          description: Unexpected internal failure; no private diagnostics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "503":
+          description: Database, provider or key unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - APPROVED
+                    - SUSPENDED
+                authorityReference:
+                  type: string
+                  pattern: ^[A-Za-z0-9_.:-]{1,80}$
+                expiresAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$
+              required:
+                - status
+                - authorityReference
+                - expiresAt
+              additionalProperties: false
+            example:
+              status: APPROVED
+              authorityReference: Synthetic example
+              expiresAt: 2026-08-01T00:00:00Z
   /api/v1/institutions/{id}/intake-report:
     get:
       operationId: get_api_v1_institutions_id_intake_report
@@ -24692,6 +25709,7 @@ paths:
                                 - OVERLAP_CASES
                                 - IDENTITY_STATUS
                                 - ACADEMIC_YEAR_COMPLIANCE
+                                - STUDENT_STATUS_DISTRIBUTION
                             format:
                               type: string
                               enum:
@@ -25330,6 +26348,7 @@ paths:
                     - OVERLAP_CASES
                     - IDENTITY_STATUS
                     - ACADEMIC_YEAR_COMPLIANCE
+                    - STUDENT_STATUS_DISTRIBUTION
                 format:
                   type: string
                   enum:
@@ -25441,6 +26460,7 @@ paths:
                           - OVERLAP_CASES
                           - IDENTITY_STATUS
                           - ACADEMIC_YEAR_COMPLIANCE
+                          - STUDENT_STATUS_DISTRIBUTION
                       format:
                         type: string
                         enum:
@@ -27521,6 +28541,24 @@ paths:
                             dateOfBirth:
                               type: string
                               format: date-time
+                            nriStatus:
+                              type: string
+                              enum:
+                                - YES
+                                - NO
+                                - UNKNOWN
+                            ociStatus:
+                              type: string
+                              enum:
+                                - YES
+                                - NO
+                                - UNKNOWN
+                            foreignNationalStatus:
+                              type: string
+                              enum:
+                                - YES
+                                - NO
+                                - UNKNOWN
                             status:
                               type: string
                               enum:
@@ -27545,6 +28583,9 @@ paths:
                             - institution
                             - institutionStudentId
                             - displayName
+                            - nriStatus
+                            - ociStatus
+                            - foreignNationalStatus
                             - status
                             - version
                             - _id
@@ -27859,6 +28900,39 @@ paths:
                         example: "000000000000000000000001"
                       identityStatus:
                         type: string
+                      identityAssessment:
+                        type: object
+                        properties:
+                          policy:
+                            const: ALLOW_WITH_REVIEW_FLAGS_V1
+                          identifierPresence:
+                            type: string
+                            enum:
+                              - LINKED
+                              - MISSING
+                          formatStatus:
+                            type: string
+                            enum:
+                              - VALID_AT_LINK
+                              - NOT_PROVIDED
+                          verificationStatus:
+                            type: string
+                          officialVerificationAvailable:
+                            const: false
+                          reviewRequired:
+                            type: boolean
+                          warnings:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                          - policy
+                          - identifierPresence
+                          - formatStatus
+                          - verificationStatus
+                          - officialVerificationAvailable
+                          - reviewRequired
+                          - warnings
                       profile:
                         type: object
                         properties:
@@ -27877,6 +28951,24 @@ paths:
                           dateOfBirth:
                             type: string
                             format: date-time
+                          nriStatus:
+                            type: string
+                            enum:
+                              - YES
+                              - NO
+                              - UNKNOWN
+                          ociStatus:
+                            type: string
+                            enum:
+                              - YES
+                              - NO
+                              - UNKNOWN
+                          foreignNationalStatus:
+                            type: string
+                            enum:
+                              - YES
+                              - NO
+                              - UNKNOWN
                           status:
                             type: string
                             enum:
@@ -27901,12 +28993,16 @@ paths:
                           - institution
                           - institutionStudentId
                           - displayName
+                          - nriStatus
+                          - ociStatus
+                          - foreignNationalStatus
                           - status
                           - version
                           - _id
                     required:
                       - studentId
                       - identityStatus
+                      - identityAssessment
                       - profile
                 required:
                   - success
@@ -27918,11 +29014,22 @@ paths:
                 data:
                   studentId: "000000000000000000000001"
                   identityStatus: Synthetic example
+                  identityAssessment:
+                    policy: ALLOW_WITH_REVIEW_FLAGS_V1
+                    identifierPresence: LINKED
+                    formatStatus: VALID_AT_LINK
+                    verificationStatus: Synthetic example
+                    officialVerificationAvailable: false
+                    reviewRequired: false
+                    warnings: []
                   profile:
                     student: "000000000000000000000001"
                     institution: "000000000000000000000001"
                     institutionStudentId: Synthetic example
                     displayName: Synthetic example
+                    nriStatus: YES
+                    ociStatus: YES
+                    foreignNationalStatus: YES
                     status: ACTIVE
                     version: 1
                     _id: "000000000000000000000001"
@@ -28194,6 +29301,24 @@ paths:
                   type: string
                   format: date
                   pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                nriStatus:
+                  type: string
+                  enum:
+                    - YES
+                    - NO
+                    - UNKNOWN
+                ociStatus:
+                  type: string
+                  enum:
+                    - YES
+                    - NO
+                    - UNKNOWN
+                foreignNationalStatus:
+                  type: string
+                  enum:
+                    - YES
+                    - NO
+                    - UNKNOWN
                 apaarId:
                   type: string
                   pattern: ^\d{12}$
@@ -28265,6 +29390,39 @@ paths:
                         example: "000000000000000000000001"
                       identityStatus:
                         type: string
+                      identityAssessment:
+                        type: object
+                        properties:
+                          policy:
+                            const: ALLOW_WITH_REVIEW_FLAGS_V1
+                          identifierPresence:
+                            type: string
+                            enum:
+                              - LINKED
+                              - MISSING
+                          formatStatus:
+                            type: string
+                            enum:
+                              - VALID_AT_LINK
+                              - NOT_PROVIDED
+                          verificationStatus:
+                            type: string
+                          officialVerificationAvailable:
+                            const: false
+                          reviewRequired:
+                            type: boolean
+                          warnings:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                          - policy
+                          - identifierPresence
+                          - formatStatus
+                          - verificationStatus
+                          - officialVerificationAvailable
+                          - reviewRequired
+                          - warnings
                       profiles:
                         type: array
                         items:
@@ -28285,6 +29443,24 @@ paths:
                             dateOfBirth:
                               type: string
                               format: date-time
+                            nriStatus:
+                              type: string
+                              enum:
+                                - YES
+                                - NO
+                                - UNKNOWN
+                            ociStatus:
+                              type: string
+                              enum:
+                                - YES
+                                - NO
+                                - UNKNOWN
+                            foreignNationalStatus:
+                              type: string
+                              enum:
+                                - YES
+                                - NO
+                                - UNKNOWN
                             status:
                               type: string
                               enum:
@@ -28309,12 +29485,16 @@ paths:
                             - institution
                             - institutionStudentId
                             - displayName
+                            - nriStatus
+                            - ociStatus
+                            - foreignNationalStatus
                             - status
                             - version
                             - _id
                     required:
                       - studentId
                       - identityStatus
+                      - identityAssessment
                       - profiles
                 required:
                   - success
@@ -28326,6 +29506,14 @@ paths:
                 data:
                   studentId: "000000000000000000000001"
                   identityStatus: Synthetic example
+                  identityAssessment:
+                    policy: ALLOW_WITH_REVIEW_FLAGS_V1
+                    identifierPresence: LINKED
+                    formatStatus: VALID_AT_LINK
+                    verificationStatus: Synthetic example
+                    officialVerificationAvailable: false
+                    reviewRequired: false
+                    warnings: []
                   profiles: []
           headers:
             X-Request-ID:
@@ -28630,6 +29818,24 @@ paths:
                       dateOfBirth:
                         type: string
                         format: date-time
+                      nriStatus:
+                        type: string
+                        enum:
+                          - YES
+                          - NO
+                          - UNKNOWN
+                      ociStatus:
+                        type: string
+                        enum:
+                          - YES
+                          - NO
+                          - UNKNOWN
+                      foreignNationalStatus:
+                        type: string
+                        enum:
+                          - YES
+                          - NO
+                          - UNKNOWN
                       status:
                         type: string
                         enum:
@@ -28654,6 +29860,9 @@ paths:
                       - institution
                       - institutionStudentId
                       - displayName
+                      - nriStatus
+                      - ociStatus
+                      - foreignNationalStatus
                       - status
                       - version
                       - _id
@@ -28669,6 +29878,9 @@ paths:
                   institution: "000000000000000000000001"
                   institutionStudentId: Synthetic example
                   displayName: Synthetic example
+                  nriStatus: YES
+                  ociStatus: YES
+                  foreignNationalStatus: YES
                   status: ACTIVE
                   version: 1
                   _id: "000000000000000000000001"
@@ -28942,6 +30154,24 @@ paths:
                   enum:
                     - ACTIVE
                     - INACTIVE
+                nriStatus:
+                  type: string
+                  enum:
+                    - YES
+                    - NO
+                    - UNKNOWN
+                ociStatus:
+                  type: string
+                  enum:
+                    - YES
+                    - NO
+                    - UNKNOWN
+                foreignNationalStatus:
+                  type: string
+                  enum:
+                    - YES
+                    - NO
+                    - UNKNOWN
                 version:
                   type: integer
                   exclusiveMinimum: 0
@@ -29590,6 +30820,471 @@ paths:
             example:
               institution: "000000000000000000000001"
               apaarId: <synthetic-12-digit-fixture-only>
+  /api/v1/students/{id}/certificate-print-data:
+    post:
+      operationId: post_api_v1_students_id_certificate_print_data
+      summary: POST /api/v1/students/{id}/certificate-print-data
+      description: Active own INSTITUTION_ADMIN and membership, ACTIVE
+        institution/profile/enrolment/offering/reservation. Default REDACTED.
+        FULL needs current regulator print authorization and explicit unexpired
+        enrolment-bound consentId from the current linked student; audit and
+        no-store. Not degree issuance.  Application semantic refinements (date
+        ordering, claim subsets, current ownership/capacity) remain
+        server-validated.
+      tags:
+        - students
+      x-roles:
+        - INSTITUTION_ADMIN
+      x-scope: Active own INSTITUTION_ADMIN and membership, ACTIVE
+        institution/profile/enrolment/offering/reservation. Default REDACTED.
+        FULL needs current regulator print authorization and explicit unexpired
+        enrolment-bound consentId from the current linked student; audit and
+        no-store. Not degree issuance.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-fA-F0-9]{24}$
+      responses:
+        "200":
+          description: Success; synthetic illustrative response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      purpose:
+                        const: CERTIFICATE_PRINT_PREPARATION
+                      disclosure:
+                        type: string
+                        enum:
+                          - REDACTED
+                          - FULL
+                      institution:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: ^[a-fA-F0-9]{24}$
+                            example: "000000000000000000000001"
+                          name:
+                            type: string
+                          pid:
+                            type: string
+                        required:
+                          - id
+                          - name
+                          - pid
+                      studentId:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      enrolmentId:
+                        type: string
+                        pattern: ^[a-fA-F0-9]{24}$
+                        example: "000000000000000000000001"
+                      institutionStudentId:
+                        type: string
+                      apaarId:
+                        anyOf:
+                          - type: string
+                            pattern: ^\d{12}$
+                          - type: "null"
+                        example: null
+                      apaarDisplay:
+                        type: string
+                        example: "************"
+                      identityAssessment:
+                        type: object
+                        properties:
+                          policy:
+                            const: ALLOW_WITH_REVIEW_FLAGS_V1
+                          identifierPresence:
+                            type: string
+                            enum:
+                              - LINKED
+                              - MISSING
+                          formatStatus:
+                            type: string
+                            enum:
+                              - VALID_AT_LINK
+                              - NOT_PROVIDED
+                          verificationStatus:
+                            type: string
+                          officialVerificationAvailable:
+                            const: false
+                          reviewRequired:
+                            type: boolean
+                          warnings:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                          - policy
+                          - identifierPresence
+                          - formatStatus
+                          - verificationStatus
+                          - officialVerificationAvailable
+                          - reviewRequired
+                          - warnings
+                      eligibility:
+                        const: ACTIVE_RECORD_PRINT_PREPARATION_ONLY
+                      degreeAwardingStatus:
+                        const: NOT_INDEPENDENTLY_VERIFIED
+                      officialCertificate:
+                        const: false
+                      qualificationCertified:
+                        const: false
+                      generatedAt:
+                        type: string
+                        format: date-time
+                      notice:
+                        type: string
+                    required:
+                      - purpose
+                      - disclosure
+                      - institution
+                      - studentId
+                      - enrolmentId
+                      - institutionStudentId
+                      - apaarId
+                      - apaarDisplay
+                      - identityAssessment
+                      - eligibility
+                      - degreeAwardingStatus
+                      - officialCertificate
+                      - qualificationCertified
+                      - generatedAt
+                      - notice
+                required:
+                  - success
+                  - message
+                  - data
+              example:
+                success: true
+                message: Synthetic example
+                data:
+                  purpose: CERTIFICATE_PRINT_PREPARATION
+                  disclosure: REDACTED
+                  institution:
+                    id: "000000000000000000000001"
+                    name: Synthetic example
+                    pid: Synthetic example
+                  studentId: "000000000000000000000001"
+                  enrolmentId: "000000000000000000000001"
+                  institutionStudentId: Synthetic example
+                  apaarId: null
+                  apaarDisplay: "************"
+                  identityAssessment:
+                    policy: ALLOW_WITH_REVIEW_FLAGS_V1
+                    identifierPresence: LINKED
+                    formatStatus: VALID_AT_LINK
+                    verificationStatus: Synthetic example
+                    officialVerificationAvailable: false
+                    reviewRequired: false
+                    warnings: []
+                  eligibility: ACTIVE_RECORD_PRINT_PREPARATION_ONLY
+                  degreeAwardingStatus: NOT_INDEPENDENTLY_VERIFIED
+                  officialCertificate: false
+                  qualificationCertified: false
+                  generatedAt: 2026-08-01T00:00:00Z
+                  notice: Synthetic example
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Safe generated correlation ID
+            Cache-Control:
+              schema:
+                const: no-store, private
+              description: Never persist sensitive print payloads or send to analytics
+        "400":
+          description: Malformed JSON/request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "401":
+          description: Authentication/session unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "403":
+          description: Role, origin, CSRF or object scope denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "404":
+          description: Resource unavailable; may conceal authorization
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "409":
+          description: State, capacity, duplicate or idempotency conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "413":
+          description: Body/file size exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "415":
+          description: Unsupported encoding/media type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "422":
+          description: Strict input validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "429":
+          description: Rate limited; use Retry-After
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "500":
+          description: Unexpected internal failure; no private diagnostics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+        "503":
+          description: Database, provider or key unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: false
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                required:
+                  - success
+                  - error
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                institution:
+                  type: string
+                  pattern: ^[a-f\d]{24}$
+                enrolment:
+                  type: string
+                  pattern: ^[a-f\d]{24}$
+                disclosure:
+                  default: REDACTED
+                  type: string
+                  enum:
+                    - REDACTED
+                    - FULL
+                consentId:
+                  type: string
+                  pattern: ^[a-f\d]{24}$
+                purposeCode:
+                  type: string
+                  const: CERTIFICATE_PRINT_PREPARATION
+              required:
+                - institution
+                - enrolment
+                - purposeCode
+              additionalProperties: false
+            example:
+              institution: "000000000000000000000001"
+              enrolment: "000000000000000000000001"
+              purposeCode: CERTIFICATE_PRINT_PREPARATION
   /api/v1/students/{id}/identity-status:
     get:
       operationId: get_api_v1_students_id_identity_status
@@ -29671,10 +31366,44 @@ paths:
                           - type: "null"
                       official:
                         const: false
+                      identityAssessment:
+                        type: object
+                        properties:
+                          policy:
+                            const: ALLOW_WITH_REVIEW_FLAGS_V1
+                          identifierPresence:
+                            type: string
+                            enum:
+                              - LINKED
+                              - MISSING
+                          formatStatus:
+                            type: string
+                            enum:
+                              - VALID_AT_LINK
+                              - NOT_PROVIDED
+                          verificationStatus:
+                            type: string
+                          officialVerificationAvailable:
+                            const: false
+                          reviewRequired:
+                            type: boolean
+                          warnings:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                          - policy
+                          - identifierPresence
+                          - formatStatus
+                          - verificationStatus
+                          - officialVerificationAvailable
+                          - reviewRequired
+                          - warnings
                     required:
                       - identityStatus
                       - latestEvent
                       - official
+                      - identityAssessment
                 required:
                   - success
                   - message
@@ -29688,6 +31417,14 @@ paths:
                     status: UNVERIFIED
                     _id: "000000000000000000000001"
                   official: false
+                  identityAssessment:
+                    policy: ALLOW_WITH_REVIEW_FLAGS_V1
+                    identifierPresence: LINKED
+                    formatStatus: VALID_AT_LINK
+                    verificationStatus: Synthetic example
+                    officialVerificationAvailable: false
+                    reviewRequired: false
+                    warnings: []
           headers:
             X-Request-ID:
               schema:
@@ -34024,7 +35761,8 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: CSV or XLSX, maximum 2 MiB / 1000 rows; exact ten-column template.
+                  description: CSV or XLSX, maximum 2 MiB / 1000 rows; exact legacy ten-column or
+                    extended thirteen-column template.
               required:
                 - institution
                 - idempotencyKey
@@ -34061,7 +35799,7 @@ paths:
               schema:
                 type: string
               example: |
-                institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType
+                institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType,nriStatus,ociStatus,foreignNationalStatus
           headers:
             X-Request-ID:
               schema:
@@ -36169,6 +37907,24 @@ components:
         dateOfBirth:
           type: string
           format: date-time
+        nriStatus:
+          type: string
+          enum:
+            - YES
+            - NO
+            - UNKNOWN
+        ociStatus:
+          type: string
+          enum:
+            - YES
+            - NO
+            - UNKNOWN
+        foreignNationalStatus:
+          type: string
+          enum:
+            - YES
+            - NO
+            - UNKNOWN
         status:
           type: string
           enum:
@@ -36193,6 +37949,9 @@ components:
         - institution
         - institutionStudentId
         - displayName
+        - nriStatus
+        - ociStatus
+        - foreignNationalStatus
         - status
         - version
         - _id
@@ -36603,6 +38362,7 @@ components:
             - OVERLAP_CASES
             - IDENTITY_STATUS
             - ACADEMIC_YEAR_COMPLIANCE
+            - STUDENT_STATUS_DISTRIBUTION
         format:
           type: string
           enum:
@@ -36671,6 +38431,39 @@ components:
         - _id
         - email
         - role
+    IdentityAssessment:
+      type: object
+      properties:
+        policy:
+          const: ALLOW_WITH_REVIEW_FLAGS_V1
+        identifierPresence:
+          type: string
+          enum:
+            - LINKED
+            - MISSING
+        formatStatus:
+          type: string
+          enum:
+            - VALID_AT_LINK
+            - NOT_PROVIDED
+        verificationStatus:
+          type: string
+        officialVerificationAvailable:
+          const: false
+        reviewRequired:
+          type: boolean
+        warnings:
+          type: array
+          items:
+            type: string
+      required:
+        - policy
+        - identifierPresence
+        - formatStatus
+        - verificationStatus
+        - officialVerificationAvailable
+        - reviewRequired
+        - warnings
     Student:
       type: object
       properties:
@@ -36680,6 +38473,39 @@ components:
           example: "000000000000000000000001"
         identityStatus:
           type: string
+        identityAssessment:
+          type: object
+          properties:
+            policy:
+              const: ALLOW_WITH_REVIEW_FLAGS_V1
+            identifierPresence:
+              type: string
+              enum:
+                - LINKED
+                - MISSING
+            formatStatus:
+              type: string
+              enum:
+                - VALID_AT_LINK
+                - NOT_PROVIDED
+            verificationStatus:
+              type: string
+            officialVerificationAvailable:
+              const: false
+            reviewRequired:
+              type: boolean
+            warnings:
+              type: array
+              items:
+                type: string
+          required:
+            - policy
+            - identifierPresence
+            - formatStatus
+            - verificationStatus
+            - officialVerificationAvailable
+            - reviewRequired
+            - warnings
         profiles:
           type: array
           items:
@@ -36700,6 +38526,24 @@ components:
               dateOfBirth:
                 type: string
                 format: date-time
+              nriStatus:
+                type: string
+                enum:
+                  - YES
+                  - NO
+                  - UNKNOWN
+              ociStatus:
+                type: string
+                enum:
+                  - YES
+                  - NO
+                  - UNKNOWN
+              foreignNationalStatus:
+                type: string
+                enum:
+                  - YES
+                  - NO
+                  - UNKNOWN
               status:
                 type: string
                 enum:
@@ -36724,12 +38568,16 @@ components:
               - institution
               - institutionStudentId
               - displayName
+              - nriStatus
+              - ociStatus
+              - foreignNationalStatus
               - status
               - version
               - _id
       required:
         - studentId
         - identityStatus
+        - identityAssessment
         - profiles
     Registration:
       type: object
@@ -36740,6 +38588,39 @@ components:
           example: "000000000000000000000001"
         identityStatus:
           type: string
+        identityAssessment:
+          type: object
+          properties:
+            policy:
+              const: ALLOW_WITH_REVIEW_FLAGS_V1
+            identifierPresence:
+              type: string
+              enum:
+                - LINKED
+                - MISSING
+            formatStatus:
+              type: string
+              enum:
+                - VALID_AT_LINK
+                - NOT_PROVIDED
+            verificationStatus:
+              type: string
+            officialVerificationAvailable:
+              const: false
+            reviewRequired:
+              type: boolean
+            warnings:
+              type: array
+              items:
+                type: string
+          required:
+            - policy
+            - identifierPresence
+            - formatStatus
+            - verificationStatus
+            - officialVerificationAvailable
+            - reviewRequired
+            - warnings
         profile:
           type: object
           properties:
@@ -36758,6 +38639,24 @@ components:
             dateOfBirth:
               type: string
               format: date-time
+            nriStatus:
+              type: string
+              enum:
+                - YES
+                - NO
+                - UNKNOWN
+            ociStatus:
+              type: string
+              enum:
+                - YES
+                - NO
+                - UNKNOWN
+            foreignNationalStatus:
+              type: string
+              enum:
+                - YES
+                - NO
+                - UNKNOWN
             status:
               type: string
               enum:
@@ -36782,12 +38681,16 @@ components:
             - institution
             - institutionStudentId
             - displayName
+            - nriStatus
+            - ociStatus
+            - foreignNationalStatus
             - status
             - version
             - _id
       required:
         - studentId
         - identityStatus
+        - identityAssessment
         - profile
     Tokens:
       type: object
@@ -38086,6 +39989,174 @@ components:
         - assumptions
         - affectedOfferingCount
         - rows
+    CertificatePrintAuthorization:
+      type: object
+      properties:
+        authorizationId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        institution:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SUSPENDED
+        expiresAt:
+          type: string
+          format: date-time
+        authorityReference:
+          type: string
+        degreeAwardingStatus:
+          const: NOT_INDEPENDENTLY_VERIFIED
+        notice:
+          type: string
+      required:
+        - authorizationId
+        - institution
+        - status
+        - expiresAt
+        - authorityReference
+        - degreeAwardingStatus
+        - notice
+    CertificatePrintConsent:
+      type: object
+      properties:
+        consentId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        enrolment:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        institution:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        expiresAt:
+          type: string
+          format: date-time
+        purpose:
+          const: CERTIFICATE_PRINT_PREPARATION
+        notice:
+          type: string
+      required:
+        - consentId
+        - enrolment
+        - institution
+        - expiresAt
+        - purpose
+        - notice
+    CertificatePrintData:
+      type: object
+      properties:
+        purpose:
+          const: CERTIFICATE_PRINT_PREPARATION
+        disclosure:
+          type: string
+          enum:
+            - REDACTED
+            - FULL
+        institution:
+          type: object
+          properties:
+            id:
+              type: string
+              pattern: ^[a-fA-F0-9]{24}$
+              example: "000000000000000000000001"
+            name:
+              type: string
+            pid:
+              type: string
+          required:
+            - id
+            - name
+            - pid
+        studentId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        enrolmentId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: "000000000000000000000001"
+        institutionStudentId:
+          type: string
+        apaarId:
+          anyOf:
+            - type: string
+              pattern: ^\d{12}$
+            - type: "null"
+          example: null
+        apaarDisplay:
+          type: string
+          example: "************"
+        identityAssessment:
+          type: object
+          properties:
+            policy:
+              const: ALLOW_WITH_REVIEW_FLAGS_V1
+            identifierPresence:
+              type: string
+              enum:
+                - LINKED
+                - MISSING
+            formatStatus:
+              type: string
+              enum:
+                - VALID_AT_LINK
+                - NOT_PROVIDED
+            verificationStatus:
+              type: string
+            officialVerificationAvailable:
+              const: false
+            reviewRequired:
+              type: boolean
+            warnings:
+              type: array
+              items:
+                type: string
+          required:
+            - policy
+            - identifierPresence
+            - formatStatus
+            - verificationStatus
+            - officialVerificationAvailable
+            - reviewRequired
+            - warnings
+        eligibility:
+          const: ACTIVE_RECORD_PRINT_PREPARATION_ONLY
+        degreeAwardingStatus:
+          const: NOT_INDEPENDENTLY_VERIFIED
+        officialCertificate:
+          const: false
+        qualificationCertified:
+          const: false
+        generatedAt:
+          type: string
+          format: date-time
+        notice:
+          type: string
+      required:
+        - purpose
+        - disclosure
+        - institution
+        - studentId
+        - enrolmentId
+        - institutionStudentId
+        - apaarId
+        - apaarDisplay
+        - identityAssessment
+        - eligibility
+        - degreeAwardingStatus
+        - officialCertificate
+        - qualificationCertified
+        - generatedAt
+        - notice
     Error:
       type: object
       properties:

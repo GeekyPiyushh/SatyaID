@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import ExcelJS from 'exceljs';
 import { connectDatabase, disconnectDatabase } from '../src/config/database';
 import { parseEnvironment } from '../src/config/env';
-import { columns } from '../src/services/upload-parser';
+import { extendedColumns } from '../src/services/upload-parser';
 import * as m from '../src/models';
 async function main() {
  const c = parseEnvironment(process.env);
@@ -12,7 +12,7 @@ async function main() {
  const offering = await m.InstitutionProgram.findOne({ institution: institution?._id });
  const pool = await m.IntakeAllocation.findOne({ offering: offering?._id, academicYear: year?._id, kind: 'BASE' });
  if (!institution || !year || !pool) throw new Error('Run synthetic seed first');
- const rows = [columns, ['DEMO-UPLOAD-001', 'Synthetic Upload One', '', '000000000003', String(pool._id), String(year._id), '2026-08-01', '2026-08-01', '', 'REGULAR'], ['DEMO-UPLOAD-002', 'Synthetic Missing Identity', '', '', String(pool._id), String(year._id), '2026-08-01', '2026-08-01', '', 'REGULAR']];
+ const rows = [extendedColumns, ['DEMO-UPLOAD-001', 'Synthetic Upload One', '', '000000000003', String(pool._id), String(year._id), '2026-08-01', '2026-08-01', '', 'REGULAR', 'YES', 'NO', 'NO'], ['DEMO-UPLOAD-002', 'Synthetic Missing Identity', '', '', String(pool._id), String(year._id), '2026-08-01', '2026-08-01', '', 'REGULAR', '', '', '']];
  await mkdir('samples/generated', { recursive: true }); await writeFile('samples/generated/students-demo.csv', rows.map(r => r.join(',')).join('\n'));
  const workbook = new ExcelJS.Workbook(); const sheet = workbook.addWorksheet('Synthetic Students'); rows.forEach(row => sheet.addRow(row)); await workbook.xlsx.writeFile('samples/generated/students-demo.xlsx');
  console.log('Synthetic CSV/XLSX samples generated under samples/generated; do not use with real student data.');

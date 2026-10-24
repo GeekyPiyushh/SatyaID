@@ -22,8 +22,9 @@ const upload = model('UploadJob', m.UploadJob, ['_id', 'status', 'totalRows', 'v
 const report = model('RegulatoryReport', m.ReportJob, ['_id', 'requestedBy', 'institution', 'filters', 'reportType', 'format', 'status', 'attempts', 'failureCode', 'generatedAt', 'expiresAt', 'metadata', 'contentDigest', 'createdAt', 'updatedAt']);
 const statusCount = obj({ _id: str, count: num });
 schemas.User = obj({ _id: id, email: { type: 'string', format: 'email' }, role: { type: 'string', enum: [...m.roles] } });
-schemas.Student = obj({ studentId: id, identityStatus: str, profiles: arr(profile) });
-schemas.Registration = obj({ studentId: id, identityStatus: str, profile });
+schemas.IdentityAssessment = obj({ policy: { const: 'ALLOW_WITH_REVIEW_FLAGS_V1' }, identifierPresence: { type: 'string', enum: ['LINKED','MISSING'] }, formatStatus: { type: 'string', enum: ['VALID_AT_LINK','NOT_PROVIDED'] }, verificationStatus: str, officialVerificationAvailable: { const: false }, reviewRequired: bool, warnings: arr(str) });
+schemas.Student = obj({ studentId: id, identityStatus: str, identityAssessment: ref('IdentityAssessment'), profiles: arr(profile) });
+schemas.Registration = obj({ studentId: id, identityStatus: str, identityAssessment: ref('IdentityAssessment'), profile });
 schemas.Tokens = obj({ accessToken: str, refreshToken: str, expiresIn: { const: 600 }, tokenType: { const: 'Bearer' } });
 schemas.BrowserTokens = obj({ accessToken: str, expiresIn: { const: 600 }, tokenType: { const: 'Bearer' }, csrfToken: str, sessionExpiresAt: date });
 schemas.Capacity = obj({ offering: id, academicYear: id, baseSeats: num, allocations: arr({ ...schemas.IntakeAllocation, properties: { ...schemas.IntakeAllocation.properties, availableSeats: num } }), configuredQuotas: arr(obj({ ruleId: id, category: id, kind: str, seats: num })), note: str });
@@ -46,8 +47,15 @@ schemas.AnomalyAlert = obj({ ruleId: str, severity: str, explanation: str, evide
 schemas.Anomalies = obj({ version: str, alerts: arr(ref('AnomalyAlert')), observedAt: date, filters: { type: 'object' }, dataSource: str, coverage: str });
 schemas.QualityScore = obj({ calculationVersion: str, label: str, score: nullable(num), insufficientData: bool, reasons: arr(str), components: arr(obj({ dimension: str, weight: num, score: nullable(num), numerator: num, denominator: num })), minimumObservations: str, institution: id, academicYear: id, observedAt: date, coverage: { type: 'object' } }, ['calculationVersion', 'label', 'score', 'insufficientData', 'reasons', 'components', 'minimumObservations']);
 schemas.PolicySimulation = obj({ label: str, calculationVersion: str, asOf: date, observedAt: date, assumptions: arr(str), affectedOfferingCount: num, rows: arr(obj({ allocationId: id, offering: id, approvedSeats: num, occupiedSeats: num, currentConfiguredCeiling: num, hypotheticalQuotaCeiling: num, hypotheticalEffectiveCeiling: num, difference: num, potentialShortfall: num, additionalApprovalNeededForFullHypotheticalQuota: num, hypotheticalUtilizationPercentage: nullable(num), currentRuleVersions: arr(obj({ ruleId: id, version: num })), ambiguousCurrentRules: bool })) });
+schemas.CertificatePrintAuthorization = obj({ authorizationId: id, institution: id, status: { type: 'string', enum: ['APPROVED','SUSPENDED'] }, expiresAt: date, authorityReference: str, degreeAwardingStatus: { const: 'NOT_INDEPENDENTLY_VERIFIED' }, notice: str });
+schemas.CertificatePrintConsent = obj({ consentId: id, enrolment: id, institution: id, expiresAt: date, purpose: { const: 'CERTIFICATE_PRINT_PREPARATION' }, notice: str });
+schemas.CertificatePrintData = obj({ purpose: { const: 'CERTIFICATE_PRINT_PREPARATION' }, disclosure: { type: 'string', enum: ['REDACTED','FULL'] }, institution: obj({ id, name: str, pid: str }), studentId: id, enrolmentId: id, institutionStudentId: str, apaarId: { ...nullable({ type: 'string', pattern: '^\\d{12}$' }), example: null }, apaarDisplay: { ...str, example: '************' }, identityAssessment: ref('IdentityAssessment'), eligibility: { const: 'ACTIVE_RECORD_PRINT_PREPARATION_ONLY' }, degreeAwardingStatus: { const: 'NOT_INDEPENDENTLY_VERIFIED' }, officialCertificate: { const: false }, qualificationCertified: { const: false }, generatedAt: date, notice: str });
 export function responseContract(e: Endpoint): any {
  const p = e.path.replace('/api/v1', ''), method = e.method;
+ if (p.endsWith('/certificate-print-authorization')) return ref('CertificatePrintAuthorization');
+ if (p.endsWith('/certificate-print-consent')) return ref('CertificatePrintConsent');
+ if (p.endsWith('/certificate-print-consent/revoke')) return obj({ revoked: { const: true } });
+ if (p.endsWith('/certificate-print-data')) return ref('CertificatePrintData');
  if (p === '/api/health') return obj({ service: { const: 'satyaid-backend' } });
  if (p === '/api/ready') return obj({ database: { const: 'ready' } });
  if (p.startsWith('/auth')) {
@@ -66,7 +74,7 @@ export function responseContract(e: Endpoint): any {
  if (p === '/students') return method === 'post' ? ref('Registration') : page(profile);
  if (p === '/students/{id}') return method === 'get' ? ref('Student') : profile;
  if (/\/students\/.*\/(account-link|apaar\/link)$/.test(p)) return obj({ linked: { const: true } });
- if (p.endsWith('/identity-status')) return obj({ identityStatus: str, latestEvent: nullable(model('IdentityEventProjection', m.IdentityVerificationEvent, ['_id','provider','providerVersion','reasonCode','createdAt','status'])), official: { const: false } });
+ if (p.endsWith('/identity-status')) return obj({ identityStatus: str, latestEvent: nullable(model('IdentityEventProjection', m.IdentityVerificationEvent, ['_id','provider','providerVersion','reasonCode','createdAt','status'])), official: { const: false }, identityAssessment: ref('IdentityAssessment') });
  if (p.endsWith('/verify-apaar')) return obj({ verificationStatus: str, outcome: str, provider: str, providerVersion: str, official: { const: false }, traceId: str });
  if (p === '/enrolments') return method === 'get' ? page(enrolment) : enrolment;
  if (p.startsWith('/enrolments/')) return p.endsWith('/history') ? arr(history) : enrolment;
