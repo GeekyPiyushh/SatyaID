@@ -47,3 +47,24 @@ erDiagram
 ```
 
 Unique indexes protect student/institution associations, institution roll numbers, linked user accounts (partial index), job/row positions, institution admission idempotency keys (partial index), enrolment reservations, transfer idempotency and canonical conflict pairs/rules. No global one-active-enrolment constraint is introduced. Tenant fields on enrolments are derived from validated allocations in services; they are indexed query projections, not client authority.
+
+## Batch 3 — IMPLEMENTED regulatory and selective sharing
+
+```mermaid
+erDiagram
+ User ||--o| EmployerProfile : authorized_employer
+ Student ||--o{ VerificationInvitation : creates
+ Enrolment ||--o{ VerificationInvitation : subject_bound
+ VerificationInvitation ||--o| VerificationRequest : consumed_once
+ VerificationRequest ||--|| ConsentRequest : asks
+ ConsentRequest ||--o| ConsentGrant : approves_subset
+ VerificationRequest ||--o{ VerificationEvent : access_history
+ ConsentGrant ||--o{ DigitalCredential : bounds
+ VerificationRequest ||--o{ DigitalCredential : purpose_and_verifier
+ Institution ||--o{ ReportJob : scoped_report
+ User ||--o{ ReportJob : requests
+```
+
+EmployerProfile/VerificationRequest/ConsentRequest/ConsentGrant reuse the earlier collections. Unique indexes protect invitation digests, credential token digests, one request per consumed invitation, one consent request per verification request, and one grant per consent request. Tokens are never document IDs. Report worker status/lease and owner/scope indexes support persisted queue access; request/event/credential owner indexes support bounded history. There are no database-enforced foreign keys; services validate references and state.
+
+AuditEvent adds role/outcome/correlation/signature metadata and an occurredAt index. IdentityVerificationEvent gains optional institution attribution for future mismatch analytics; unattributed historical events are not attributed to an institution by guessing. VerificationEvent is a different purpose: consent and actual academic-claim access metadata, not duplicate APAAR verification history.

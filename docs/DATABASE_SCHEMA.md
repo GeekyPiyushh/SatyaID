@@ -61,6 +61,7 @@ Collection: `identityverificationevents`.
 
 | Field | Type | Required | Default selection |
 |---|---|---|---|
+| institution | ObjectId → Institution | false | included |
 | student | ObjectId → Student | true | included |
 | actor | ObjectId → User | true | included |
 | status | String | true | included |
@@ -82,6 +83,16 @@ Indexes (plus automatic unique `_id`):
     {
       "student": 1,
       "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ],
+  [
+    {
+      "institution": 1,
+      "createdAt": -1,
+      "reasonCode": 1
     },
     {
       "unique": false
@@ -298,6 +309,196 @@ Indexes (plus automatic unique `_id`):
 ]
 ```
 
+## VerificationInvitation
+
+Collection: `verificationinvitations`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| student | ObjectId → Student | true | included |
+| enrolment | ObjectId → Enrolment | true | included |
+| employer | ObjectId → User | true | included |
+| digest | String | true | hidden |
+| maxClaims | Array | false | included |
+| expiresAt | Date | true | included |
+| usedAt | Date | false | included |
+| _id | ObjectId | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[
+  [
+    {
+      "digest": 1
+    },
+    {
+      "unique": true
+    }
+  ],
+  [
+    {
+      "student": 1,
+      "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ]
+]
+```
+
+## VerificationEvent
+
+Collection: `verificationevents`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| request | ObjectId → VerificationRequest | true | included |
+| actor | ObjectId → User | true | included |
+| eventCode | String | true | included |
+| claimTypes | Array | false | included |
+| credential | ObjectId → DigitalCredential | false | included |
+| outcome | String | false | included |
+| _id | ObjectId | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[
+  [
+    {
+      "request": 1,
+      "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ]
+]
+```
+
+## DigitalCredential
+
+Collection: `digitalcredentials`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| request | ObjectId → VerificationRequest | true | included |
+| consentGrant | ObjectId → ConsentGrant | true | included |
+| student | ObjectId → Student | true | included |
+| requester | ObjectId → User | true | included |
+| enrolment | ObjectId → Enrolment | true | included |
+| claimTypes | Array | false | included |
+| tokenDigest | String | true | hidden |
+| expiresAt | Date | true | included |
+| revokedAt | Date | false | included |
+| source | String | false | included |
+| _id | ObjectId | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[
+  [
+    {
+      "tokenDigest": 1
+    },
+    {
+      "unique": true
+    }
+  ],
+  [
+    {
+      "student": 1,
+      "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ],
+  [
+    {
+      "requester": 1,
+      "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ]
+]
+```
+
+## ReportJob
+
+Collection: `reportjobs`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| requestedBy | ObjectId → User | true | included |
+| institution | ObjectId → Institution | false | included |
+| filters | Mixed | true | included |
+| reportType | String | true | included |
+| format | String | true | included |
+| status | String | false | included |
+| attempts | Number | false | included |
+| leaseToken | String | false | included |
+| leaseUntil | Date | false | included |
+| failureCode | String | false | included |
+| generatedAt | Date | false | included |
+| expiresAt | Date | true | included |
+| metadata | Mixed | false | included |
+| content | Buffer | false | hidden |
+| contentDigest | String | false | included |
+| _id | ObjectId | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[
+  [
+    {
+      "status": 1,
+      "leaseUntil": 1,
+      "createdAt": 1
+    },
+    {
+      "unique": false
+    }
+  ],
+  [
+    {
+      "institution": 1,
+      "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ],
+  [
+    {
+      "requestedBy": 1,
+      "createdAt": -1
+    },
+    {
+      "unique": false
+    }
+  ]
+]
+```
+
 ## User
 
 Collection: `users`.
@@ -415,6 +616,8 @@ Collection: `employerprofiles`.
 |---|---|---|---|
 | user | ObjectId → User | true | included |
 | organization | String | true | included |
+| status | String | false | included |
+| approvalReference | String | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -1063,6 +1266,10 @@ Collection: `verificationrequests`.
 | requester | ObjectId → User | true | included |
 | purposeCode | String | true | included |
 | expiresAt | Date | true | included |
+| enrolment | ObjectId → Enrolment | true | included |
+| invitation | ObjectId → VerificationInvitation | true | included |
+| requestedClaims | Array | false | included |
+| status | String | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -1083,6 +1290,40 @@ Indexes (plus automatic unique `_id`):
       "requester": 1
     },
     {}
+  ],
+  [
+    {
+      "enrolment": 1
+    },
+    {}
+  ],
+  [
+    {
+      "invitation": 1
+    },
+    {
+      "name": "verification_invitation_unique",
+      "unique": true,
+      "partialFilterExpression": {
+        "invitation": {
+          "$type": "objectId"
+        }
+      }
+    }
+  ],
+  [
+    {
+      "requester": 1,
+      "createdAt": -1
+    },
+    {}
+  ],
+  [
+    {
+      "student": 1,
+      "createdAt": -1
+    },
+    {}
   ]
 ]
 ```
@@ -1095,6 +1336,7 @@ Collection: `consentrequests`.
 |---|---|---|---|
 | verificationRequest | ObjectId → VerificationRequest | true | included |
 | status | String | false | included |
+| version | Number | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -1108,7 +1350,10 @@ Indexes (plus automatic unique `_id`):
     {
       "verificationRequest": 1
     },
-    {}
+    {
+      "unique": true,
+      "name": "consent_request_unique"
+    }
   ]
 ]
 ```
@@ -1123,6 +1368,8 @@ Collection: `consentgrants`.
 | fields | Array | true | included |
 | expiresAt | Date | true | included |
 | revokedAt | Date | false | included |
+| grantedBy | ObjectId → User | true | included |
+| disclosureCount | Number | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -1134,9 +1381,18 @@ Indexes (plus automatic unique `_id`):
 [
   [
     {
-      "request": 1
+      "grantedBy": 1
     },
     {}
+  ],
+  [
+    {
+      "request": 1
+    },
+    {
+      "unique": true,
+      "name": "consent_grant_unique"
+    }
   ]
 ]
 ```
@@ -1155,6 +1411,14 @@ Collection: `auditevents`.
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
+| actorRole | String | false | included |
+| occurredAt | Date | false | included |
+| outcome | String | false | included |
+| reasonCode | String | false | included |
+| correlationId | String | false | included |
+| integrityVersion | String | false | included |
+| integrityKeyVersion | String | false | included |
+| integrityTag | String | false | hidden |
 | __v | Number | false | included |
 
 Indexes (plus automatic unique `_id`):
@@ -1173,6 +1437,13 @@ Indexes (plus automatic unique `_id`):
   [
     {
       "actor": 1
+    },
+    {}
+  ],
+  [
+    {
+      "occurredAt": -1,
+      "_id": -1
     },
     {}
   ]
@@ -1226,8 +1497,8 @@ Indexes (plus automatic unique `_id`):
 
 ## Identity and privacy
 
-Student `_id` is the stable identity; institution-owned demographics/roll numbers live in StudentInstitution. A missing vault is permitted. Identity status distinguishes UNVERIFIED, MOCK_VERIFIED, OFFICIALLY_VERIFIED and VERIFICATION_FAILED. No endpoint sets official status. Vault ciphertext uses AES-256-GCM with a fresh 12-byte nonce, 16-byte tag and student-ID AAD. Lookup uses HMAC-SHA256 with an independent key. Never expose lookup tokens or plaintext in logs. Keep keys in a secret manager; use keyVersion to identify an encryption/lookup key pair. Rotation must support old key reads, dual lookups and transactional re-encryption before retiring old keys; rotation services are PLANNED. Select:false is defense in depth, not access control. No identity API or real student fixture exists.
+Student `_id` is the stable identity; institution-owned demographics/roll numbers live in StudentInstitution. A missing vault is permitted. Identity status distinguishes UNVERIFIED, MOCK_VERIFIED, OFFICIALLY_VERIFIED and VERIFICATION_FAILED. No endpoint sets official status. Vault ciphertext uses AES-256-GCM with a fresh 12-byte nonce, 16-byte tag and student-ID AAD. Lookup uses HMAC-SHA256 with an independent key. Never expose lookup tokens or plaintext in logs. Keep keys in a secret manager; use keyVersion to identify an encryption/lookup key pair. Rotation must support old key reads, dual lookups and transactional re-encryption before retiring old keys; rotation services are PLANNED. Select:false is defense in depth, not access control. No official identity-provider API or real-student fixture exists.
 
 ## Implemented and future collections
 
-StudentInstitution, UploadJob/UploadRowResult, Enrolment/EnrolmentHistory, SeatReservation, TransferRequest, EnrolmentConflict/ConflictEvidence/ConflictHistory and IdentityVerificationEvent support implemented Batch 2 workflows. ValidationIssue, StudentCorrectionRequest, ConsentRequest/ConsentGrant and VerificationRequest remain minimal future scaffolding. Full consent/credential/employer verification workflows remain PLANNED. API validation complements schemas; MongoDB foreign-key and regulatory enforcement still belong in services. AuditEvent contains actors and opaque resource references, not free-form PII payloads. Audit immutability requires restricted database privileges; Mongoose schemas alone do not make logs immutable.
+StudentInstitution, UploadJob/UploadRowResult, Enrolment/EnrolmentHistory, SeatReservation, TransferRequest, EnrolmentConflict/ConflictEvidence/ConflictHistory and IdentityVerificationEvent support implemented Batch 2 workflows. Batch 3 expands EmployerProfile, ConsentRequest/ConsentGrant and VerificationRequest for controlled sharing; VerificationInvitation, VerificationEvent and DigitalCredential implement invitation/consent/disclosure references. ReportJob persists bounded regulatory-readiness artifacts. ValidationIssue and StudentCorrectionRequest remain future scaffolding. IdentityVerificationEvent records APAAR provider checks; VerificationEvent separately records consent and academic-claim disclosure metadata. No official government adapter exists. API validation complements schemas; MongoDB foreign-key and regulatory enforcement still belong in services. AuditEvent contains actors and opaque resource references, not free-form PII payloads. Audit immutability requires restricted database privileges; Mongoose schemas alone do not make logs immutable.

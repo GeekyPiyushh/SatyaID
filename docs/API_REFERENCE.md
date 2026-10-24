@@ -102,3 +102,12 @@ Important errors: 401 auth failures, 403 FORBIDDEN, 404 NOT_FOUND, 409 CONFLICT_
 ## Batch 2 — MOCKED APAAR verification
 
 See [APAAR_MOCK_VERIFICATION.md](APAAR_MOCK_VERIFICATION.md). The verification endpoint is operational, but all provider outcomes are simulations, explicitly official:false. Production mode refuses it. No official government adapter exists.
+
+## Batch 3 — current implemented contracts
+
+- [ANALYTICS_API_CONTRACT.md](ANALYTICS_API_CONTRACT.md): national/institution dashboards, bounded trends, allocation utilization, upload/conflict aggregates and exact denominators/filter coverage.
+- [CONSENT_VERIFICATION_CONTRACT.md](CONSENT_VERIFICATION_CONTRACT.md): employer authorization, student-bound sharing invitations, student consent decisions/history, selective academic claims and authenticated QR-compatible opaque references.
+- [REGULATORY_REPORTING.md](REGULATORY_REPORTING.md): persisted JSON/CSV report lifecycle/downloads, compliance prevalidation, audit queries and optional per-event HMAC checking.
+- [INTELLIGENCE_FEATURES.md](INTELLIGENCE_FEATURES.md): evidence-based anomalies, operational quality scorecards and read-only HYPOTHETICAL policy simulations.
+
+All preserve the existing version prefix, strict schemas, JWT/RBAC and success/error envelope. Responses expose a generated X-Request-ID header (also exposed through CORS); no secret/token header is copied into it. No frontend, official identity integration, completion/degree verification, PDF exporter or final frontend master contract is implied.

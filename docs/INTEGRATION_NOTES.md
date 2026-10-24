@@ -17,3 +17,15 @@ Polling workflow: POST upload (202), poll job/results until VALIDATED, show row 
 Identity screens must label MOCK_VERIFIED as simulated and show official:false. Provider timeout/unavailability is distinct from a mismatch. There is no public identity lookup, official API, employer verification workflow or analytics dashboard. Completion/graduation, legal-basis/consent workflows and production browser-session hardening remain future work.
 
 Use `.env.example`, private runtime secrets, a replica set, explicit index creation and a separate worker. Do not embed backend signing/encryption keys in React builds. The final FRONTEND_INTEGRATION_MASTER.md remains intentionally deferred.
+
+## Batch 3 frontend-ready REST contracts
+
+Current source/API contracts now include regulatory analytics, student-owned consent and authenticated employer claims, opaque credential references, reports/audits and explainable intelligence. Use the four new focused contract documents linked in API_REFERENCE.md. Existing Batch 1/2 tokens, envelopes and APIs remain compatible.
+
+Frontend flow: a linked student creates a one-time employer-bound invitation, shares it privately, then reviews the employer's purpose/requested claim set and approves only selected claims. Do not represent the invitation itself as consent. Never place share tokens in analytics logs or backend URL paths. QR reference is text, not a generated image or public PII endpoint; an authenticated intended verifier must POST the token to obtain currently permitted claims.
+
+Analytics counts registered records only. Display denominator/coverage notes, observedAt and academic-year filters. Never label a live dashboard as a historical snapshot or a quality score as an official rating. InsufficientData/null scores must remain visible rather than becoming zero/rankings.
+
+Report creation returns 202; poll status until COMPLETED/FAILED, then request an authenticated download. Worker now processes uploads and reports. CSV/JSON artifacts are readiness reports, not official filings. Optional audit signing distinguishes unsigned/valid/invalid/key-unavailable records and checks only the requested page.
+
+Batch 4 still needs a final frontend integration master derived from actual contracts, production cookie/BFF and abuse hardening, legal/privacy/employer onboarding review, retention/key rotation, deployment recovery/load testing and any separately authorized official adapters. Do not create the final master file yet.

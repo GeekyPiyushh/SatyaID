@@ -1,0 +1,20 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { rateLimit } from 'express-rate-limit';
+import { authenticate, requireRoles } from '../../middlewares/auth';
+import { validate } from '../../middlewares/validate';
+import { objectId, day } from '../../validators/batch2';
+import { governanceData, anomalyAlerts, simulatePolicy } from '../../services/regulatory/intelligence';
+import { AppError } from '../../utils/app-error';
+export const intelligenceRouter = Router();
+intelligenceRouter.use(authenticate, rateLimit({ windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Intelligence request limit reached' } }); } }));
+intelligenceRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid institution reference')));
+const range = { academicYear: objectId, from: day.optional(), to: day.optional() };
+const validRange = (v: any) => !v.from || !v.to || new Date(v.to).getTime() >= new Date(v.from).getTime() && new Date(v.to).getTime() - new Date(v.from).getTime() <= 366 * 86400000;
+const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
+intelligenceRouter.get('/anomalies', validate(z.object({ institution: objectId, ...range }).strict().refine(validRange), 'query'), async (_req, res) => reply(res, anomalyAlerts(await governanceData(res.locals.user, res.locals.validated))));
+for (const view of ['health', 'quality-score'] as const) intelligenceRouter.get(`/institutions/:id/${view}`, validate(z.object(range).strict().refine(validRange), 'query'), async (req, res) => {
+ const f = { ...res.locals.validated, institution: String(req.params.id) }; const data = await governanceData(res.locals.user, f);
+ reply(res, view === 'quality-score' ? { ...data.score, institution: f.institution, academicYear: f.academicYear, observedAt: new Date().toISOString(), coverage: { window: data.window, population: 'Institution profiles and selected enrolment cohort, not national population' } } : { institution: f.institution, academicYear: f.academicYear, observation: data.score.insufficientData ? 'INSUFFICIENT_DATA' : 'REVIEW_RULE_OUTPUTS', anomalies: anomalyAlerts(data), quality: data.score, prevalidation: data.validation });
+});
+intelligenceRouter.post('/policy-simulations', requireRoles('AICTE_ADMIN'), validate(z.object({ academicYear: objectId, category: objectId, institution: objectId.optional(), program: objectId.optional(), state: z.string().trim().min(1).max(100).optional(), asOf: z.iso.datetime(), hypothetical: z.object({ kind: z.enum(['BASE', 'SUPERNUMERARY']), method: z.enum(['FIXED', 'PERCENTAGE']), value: z.number().min(0).max(1000000), rounding: z.enum(['FLOOR', 'CEILING', 'HALF_UP']) }).strict().refine(v => v.method === 'PERCENTAGE' ? v.value <= 100 : Number.isInteger(v.value)) }).strict()), async (_req, res) => reply(res, await simulatePolicy(res.locals.user, res.locals.validated)));

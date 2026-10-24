@@ -1,4 +1,4 @@
-# SatyaID backend — Batch 2
+# SatyaID backend — Batch 3
 
 Node.js 24, Express 5, TypeScript, MongoDB 8, Mongoose, Zod, JWT and bcrypt. The former MySQL/Prisma configuration and unfinished relational schema have been removed. No existing database was migrated: there was no deployed application data.
 
@@ -85,4 +85,27 @@ Generated CSV/XLSX files are under `samples/generated/` and ignored by Git. Temp
 
 New API families: `/api/v1/students`, `/enrolments`, `/uploads`, `/conflicts`, `/transfers`. See [student/admission contracts](docs/STUDENT_DATA_CONTRACT.md), [bulk format/worker](docs/BULK_UPLOAD_FORMAT.md), [mock verification](docs/APAAR_MOCK_VERIFICATION.md), and [Batch 2 evidence](docs/BATCH2_IMPLEMENTATION.md). Mock matches remain MOCK_VERIFIED and official:false; production mode refuses the mock provider.
 
-Batch 3 dependencies: production browser-session/MFA/invitation hardening, approved privacy/retention and consent policies, official provider authorization, completion/graduation lifecycle, protected evidence storage, key rotation, production recovery/load evidence, and later authorized employer verification. Dashboards, AI and frontend remain outside this batch.
+Remaining production / Batch 4 dependencies: production browser-session/MFA/invitation hardening, approved privacy/retention and consent policies, official provider authorization, completion/graduation lifecycle, protected evidence storage, key rotation, production recovery/load evidence, and any separately authorized official integrations. Dashboards, AI and frontend remain outside this batch.
+
+## Batch 3 regulatory, consent and verification features
+
+API families now include `/api/v1/analytics`, `/verification`, `/consents`, `/credentials`, `/reports`, `/audit` and `/intelligence`. See [Batch 3 evidence](docs/BATCH3_IMPLEMENTATION.md) and the focused [analytics](docs/ANALYTICS_API_CONTRACT.md), [consent/credentials](docs/CONSENT_VERIFICATION_CONTRACT.md), [reporting/audit](docs/REGULATORY_REPORTING.md), and [intelligence](docs/INTELLIGENCE_FEATURES.md) contracts. No frontend or official government integration is included.
+
+The same `npm run worker` processes persisted upload and report jobs, one of each per poll. It requires the existing replica set; no Redis is needed. Report JSON/CSV detail rows cap at 500. Optional audit signing uses a separate private base64 32-byte AUDIT_HMAC_KEY and AUDIT_KEY_VERSION; without them new events are explicitly unsigned. This is per-event HMAC, not immutable blockchain history.
+
+Lifetime defaults are listed in `.env.example`: invitations max 900 seconds, request/consent max seven days, credential max one hour. Tightening limits may require sending explicit shorter body lifetimes. Employer access requires both its role and an approved application employer profile. Only linked students grant/revoke consent; a QR reference alone reveals no claims. Actual claims remain labelled institution-submitted, not government-certified.
+
+### Guarded synthetic governance demo (Windows)
+
+After `npm run db:seed` on a dedicated `_demo` database, supply private DEMO_STUDENT_PASSWORD and DEMO_EMPLOYER_PASSWORD values (16–72 bytes), with the existing DEMO_ADMIN_EMAIL and ALLOW_DEMO_SEED=true:
+
+```powershell
+npm run db:seed:governance
+npm run dev
+# Separate terminal, same private configuration:
+npm run worker
+```
+
+This provisions only `student@example.invalid` and `employer@example.invalid` synthetic accounts, links the synthetic student and approves a fictional employer application profile with a DEMO_ONLY reference. Passwords come from private environment variables, never hardcoded defaults; reruns preserve existing passwords/decisions. No consent is granted automatically. Log in as the student to initiate an invitation and approve sharing; then use the employer's token to verify only authorized claims. Existing accounts with conflicting roles/decisions cause a safe failure rather than being overwritten.
+
+Analytics, signals and operational scores use currently registered data, not a national census, official ratings or predictive fraud detection. Simulation is explicitly hypothetical and does not mutate allocations/rules/admissions. Completion/graduation and real official verification remain unavailable.

@@ -16,7 +16,8 @@
     "db:indexes": "tsx scripts/create-indexes.ts",
     "db:seed": "tsx scripts/seed.ts",
     "worker": "tsx scripts/upload-worker.ts",
-    "demo:samples": "tsx scripts/demo-samples.ts"
+    "demo:samples": "tsx scripts/demo-samples.ts",
+    "db:seed:governance": "tsx scripts/seed-governance.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

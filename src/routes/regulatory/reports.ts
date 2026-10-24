@@ -1,0 +1,23 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { authenticate } from '../../middlewares/auth';
+import { validate } from '../../middlewares/validate';
+import { objectId, pagination } from '../../validators/batch2';
+import { analyticsFilters, pagedFilters } from '../../validators/regulatory';
+import { ReportJob } from '../../models';
+import { reportTypes, createReport, reportAccess, reportScope, downloadReport } from '../../services/regulatory/reports';
+import { prevalidate } from '../../services/regulatory/compliance';
+import { AppError } from '../../utils/app-error';
+export const reportRouter = Router();
+reportRouter.use(authenticate);
+reportRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(404, 'REPORT_UNAVAILABLE', 'Report is unavailable')));
+const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
+reportRouter.post('/', validate(z.object({ reportType: z.enum(reportTypes), format: z.enum(['JSON', 'CSV']), filters: analyticsFilters }).strict()), async (_req, res) => { res.status(202); reply(res, await createReport(res.locals.user, res.locals.validated)); });
+reportRouter.get('/', validate(z.object({ institution: objectId.optional(), academicYear: objectId.optional(), ...pagination }).strict(), 'query'), async (_req, res) => {
+ const { page, limit, ...f } = res.locals.validated; await reportScope(res.locals.user, f);
+ const query: any = {}; if (f.institution) query.institution = f.institution; if (f.academicYear) query['filters.academicYear'] = f.academicYear;
+ reply(res, { items: await ReportJob.find(query).select('reportType format status filters metadata generatedAt createdAt expiresAt failureCode').sort({ _id: -1 }).skip((page - 1) * limit).limit(limit), total: await ReportJob.countDocuments(query), page, limit });
+});
+reportRouter.get('/prevalidation', validate(analyticsFilters, 'query'), async (_req, res) => { await reportScope(res.locals.user, res.locals.validated); reply(res, await prevalidate(res.locals.user, res.locals.validated)); });
+reportRouter.get('/:id', async (req, res) => reply(res, await reportAccess(res.locals.user, String(req.params.id))));
+reportRouter.get('/:id/download', async (req, res) => { const file = await downloadReport(res.locals.user, String(req.params.id)); res.type(file.format === 'JSON' ? 'application/json' : 'text/csv').attachment(`satyaid-readiness-${file.id}.${file.format === 'JSON' ? 'json' : 'csv'}`).send(file.content); });
