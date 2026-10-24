@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
-import { rateLimit } from 'express-rate-limit';
+import { createRateLimiter } from '../../utils/rate-limit';
 import { authenticate, requireRoles } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
 import { objectId, code, name, pagination } from '../../validators/batch2';
@@ -14,7 +14,7 @@ import { AppError } from '../../utils/app-error';
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 const lifetime = z.number().int().min(60).max(2592000);
 function router() {
- const r = Router(); r.use(authenticate, rateLimit({ windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Verification workflow limit reached' } }); } }));
+ const r = Router(); r.use(authenticate, createRateLimiter('consent.1', { windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Verification workflow limit reached' } }); } }));
  r.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(404, 'VERIFICATION_UNAVAILABLE', 'Verification reference is unavailable'))); return r;
 }
 export const verificationRouter = router();

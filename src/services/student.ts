@@ -3,13 +3,13 @@ import { createHmac } from 'node:crypto';
 import * as m from '../models';
 import { institutionScope } from '../middlewares/auth';
 import { AppError } from '../utils/app-error';
+import { identityKey, identityKeyring } from '../security/keys';
 import { protectIdentity } from './identity-crypto';
-export function identityKeys() {
- const encryption = process.env.APAAR_ENCRYPTION_KEY, lookup = process.env.APAAR_LOOKUP_KEY, version = process.env.APAAR_KEY_VERSION;
- if (!encryption || !lookup || !version || Buffer.from(encryption, 'base64').length !== 32 || Buffer.from(lookup, 'base64').length !== 32 || encryption === lookup) throw new AppError(503, 'IDENTITY_KEYS_UNAVAILABLE', 'Identity protection is not configured');
- return { encryption, lookup, version };
+export function identityKeys(version?: string) { return identityKey(version); }
+export function identityLookupQuery(identifier: string) {
+ return { $or: Object.values(identityKeyring()).map(k => ({ keyVersion: k.version, lookupDigest: createHmac('sha256', Buffer.from(k.lookup, 'base64')).update(identifier).digest() })) };
 }
-export const digestIdentity = (value: string) => { const k = identityKeys(); return createHmac('sha256', Buffer.from(k.lookup, 'base64')).update(value).digest(); };
+export const digestIdentity = (value: string, version?: string) => { const k = identityKeys(version); return createHmac('sha256', Buffer.from(k.lookup, 'base64')).update(value).digest(); };
 export async function audit(actor: any, action: string, type: string, id: any, session?: ClientSession, institution?: any) {
  await m.AuditEvent.create([{ actor: actor._id, action, resourceType: type, resourceId: id, institution }], { session });
 }
@@ -31,13 +31,14 @@ export async function studentAccess(user: any, id: string, institution?: string,
 export async function linkIdentity(user: any, id: string, institution: string, identifier: string, session?: ClientSession): Promise<void> {
  if (!session) { await studentAccess(user, id, institution, true); return mongoose.connection.transaction(s => linkIdentity(user, id, institution, identifier, s)); }
  const keys = identityKeys();
- if (await m.ApaarIdentityVault.exists({ keyVersion: { $ne: keys.version } }).session(session)) throw new AppError(503, 'IDENTITY_KEY_VERSION_UNAVAILABLE', 'Identity linking is paused pending key-version reconciliation');
+ await m.IdentityRegistryLock.updateOne({ _id: 'apaar-linkage' }, { $inc: { version: 1 } }, { upsert: true, session });
+ if (await m.ApaarIdentityVault.exists({ keyVersion: { $nin: Object.keys(identityKeyring()) } }).session(session)) throw new AppError(503, 'IDENTITY_KEY_VERSION_UNAVAILABLE', 'Identity linking is paused pending key-version reconciliation');
  const existing = await m.ApaarIdentityVault.findOne({ student: id }).select('+lookupDigest').session(session);
  if (existing) {
-  if (existing.keyVersion === keys.version && Buffer.from(existing.lookupDigest as any).equals(digestIdentity(identifier))) return;
+  if (Buffer.from(existing.lookupDigest as any).equals(digestIdentity(identifier, String(existing.keyVersion)))) return;
   throw new AppError(409, 'IDENTITY_ALREADY_LINKED', 'Identity correction requires regulatory review');
  }
- if (await m.ApaarIdentityVault.exists({ keyVersion: keys.version, lookupDigest: digestIdentity(identifier) }).session(session)) throw new AppError(409, 'IDENTITY_REVIEW_REQUIRED', 'Identity linkage requires authorized review');
+ if (await m.ApaarIdentityVault.exists(identityLookupQuery(identifier)).session(session)) throw new AppError(409, 'IDENTITY_REVIEW_REQUIRED', 'Identity linkage requires authorized review');
  await m.Student.updateOne({ _id: id }, { $inc: { lockVersion: 1 } }, { session });
  await m.ApaarIdentityVault.create([{ student: id, ...protectIdentity(identifier, id, keys.encryption, keys.lookup), keyVersion: keys.version }], { session });
  await audit(user, 'IDENTITY_LINKED', 'Student', id, session, institution);

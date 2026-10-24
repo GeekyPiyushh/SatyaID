@@ -3,15 +3,15 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import * as m from '../models';
 import { AppError } from '../utils/app-error';
-import { writeScope, audit, createStudent, digestIdentity, identityKeys } from './student';
+import { writeScope, audit, createStudent, digestIdentity, identityKeys, identityLookupQuery } from './student';
 import { allocationContext, createEnrolment, changeAdmission } from './admissions';
 import { parseStudentFile } from './upload-parser';
-import { sealUpload, openUpload, uploadFingerprint } from './upload-crypto';
+import { sealUpload, openUpload, uploadFingerprint, uploadFingerprintCandidates } from './upload-crypto';
 import { capacity } from './management';
 import { objectId, name, code, day, apaar } from '../validators/batch2';
 const optional = (schema: z.ZodType) => z.union([schema, z.literal('')]).optional();
 const rowSchema = z.object({ institutionStudentId: code, displayName: name, dateOfBirth: optional(day), apaarId: optional(apaar), allocation: objectId, academicYear: objectId, admissionDate: day, startsOn: day, endsOn: optional(day), entryType: z.enum(['REGULAR', 'LATERAL_ENTRY', 'TRANSFER']) }).strict().refine(v => !v.endsOn || v.startsOn <= v.endsOn);
-const hidden = 'status totalRows validRows invalidRows committedRows failureCode attempts institution createdAt updatedAt';
+const hidden = 'status totalRows validRows invalidRows committedRows failureCode attempts institution payloadPurgedAt createdAt updatedAt';
 export async function jobAccess(user: any, id: string) {
  const job = await m.UploadJob.findById(id).select(hidden);
  if (!job) throw new AppError(404, 'NOT_FOUND', 'Upload not found');
@@ -20,18 +20,19 @@ export async function jobAccess(user: any, id: string) {
 export async function queueUpload(user: any, institution: string, key: string, file: Buffer, format: string) {
  await writeScope(user, institution); const fingerprint = uploadFingerprint(file);
  const previous = await m.UploadJob.findOne({ institution, idempotencyKey: key }).select('+fingerprint');
- if (previous) { if (previous.fingerprint !== fingerprint || previous.format !== format) throw new AppError(409, 'IDEMPOTENCY_CONFLICT', 'Upload key was used for different content'); return jobAccess(user, String(previous._id)); }
+ if (previous) { if (!uploadFingerprintCandidates(file).includes(String(previous.fingerprint)) || previous.format !== format) throw new AppError(409, 'IDEMPOTENCY_CONFLICT', 'Upload key was used for different content'); return jobAccess(user, String(previous._id)); }
  const id = new mongoose.Types.ObjectId();
  try {
   await mongoose.connection.transaction(async session => {
    await m.UploadJob.create([{ _id: id, institution, submittedBy: user._id, idempotencyKey: key, fingerprint, format, payload: sealUpload(file, String(id)) }], { session });
    await audit(user, 'UPLOAD_QUEUED', 'UploadJob', id, session, institution);
   });
- } catch (e: any) { if (e.code !== 11000) throw e; const existing = await m.UploadJob.findOne({ institution, idempotencyKey: key }).select('+fingerprint'); if (!existing || existing.fingerprint !== fingerprint || existing.format !== format) throw new AppError(409, 'IDEMPOTENCY_CONFLICT', 'Upload key was used for different content'); return jobAccess(user, String(existing._id)); }
+ } catch (e: any) { if (e.code !== 11000) throw e; const existing = await m.UploadJob.findOne({ institution, idempotencyKey: key }).select('+fingerprint'); if (!existing || !uploadFingerprintCandidates(file).includes(String(existing.fingerprint)) || existing.format !== format) throw new AppError(409, 'IDEMPOTENCY_CONFLICT', 'Upload key was used for different content'); return jobAccess(user, String(existing._id)); }
  return jobAccess(user, String(id));
 }
 export async function confirmUpload(user: any, id: string) {
  const job = await jobAccess(user, id);
+ if (job.payloadPurgedAt) throw new AppError(409, 'UPLOAD_PAYLOAD_EXPIRED', 'Upload staging has expired; submit a new file with a new idempotency key');
  if (['COMMITTING', 'COMPLETED'].includes(String(job.status))) return job;
  if (!['VALIDATED', 'PARTIAL'].includes(String(job.status))) throw new AppError(409, 'UPLOAD_NOT_VALIDATED', 'Only validated uploads can be committed');
  await mongoose.connection.transaction(async session => {
@@ -51,7 +52,7 @@ async function preview(job: any, user: any, renew: () => Promise<void>) {
   try {
    if (row.apaarId) {
     const digest = digestIdentity(row.apaarId).toString('hex'); if (seenIdentity.has(digest)) errors.push('DUPLICATE_IDENTITY_IN_FILE'); seenIdentity.add(digest);
-    const vault = await m.ApaarIdentityVault.findOne({ keyVersion: identityKeys().version, lookupDigest: Buffer.from(digest, 'hex') });
+    const vault = await m.ApaarIdentityVault.findOne(identityLookupQuery(row.apaarId));
     if (vault) {
      const profile = await m.StudentInstitution.findOne({ student: vault.student, institution: job.institution, institutionStudentId: row.institutionStudentId });
      if (!profile) errors.push('IDENTITY_REVIEW_REQUIRED'); else { data.existingStudent = String(vault.student); warnings.push('EXISTING_PROTECTED_IDENTITY'); }
@@ -66,7 +67,7 @@ async function preview(job: any, user: any, renew: () => Promise<void>) {
     if (profile) {
      if (profile.displayName !== data.displayName || data.dateOfBirth && profile.dateOfBirth?.toISOString().slice(0, 10) !== data.dateOfBirth) errors.push('CONFLICTING_STUDENT_DETAILS');
      else if (data.existingStudent && data.existingStudent !== String(profile.student)) errors.push('IDENTITY_REVIEW_REQUIRED');
-     else { data.existingStudent = String(profile.student); if (data.apaarId && !await m.ApaarIdentityVault.exists({ student: profile.student, keyVersion: identityKeys().version, lookupDigest: digestIdentity(data.apaarId) })) errors.push('IDENTITY_REVIEW_REQUIRED'); }
+     else { data.existingStudent = String(profile.student); if (data.apaarId && !await m.ApaarIdentityVault.exists({ student: profile.student, ...identityLookupQuery(data.apaarId) })) errors.push('IDENTITY_REVIEW_REQUIRED'); }
      if (await m.Enrolment.exists({ student: profile.student, offering: context.offering._id, academicYear: context.year._id, status: { $nin: ['REJECTED', 'WITHDRAWN', 'TRANSFERRED'] } })) errors.push('DUPLICATE_SUBMISSION');
     }
     if (data.existingStudent && await m.Enrolment.exists({ student: data.existingStudent, institution: { $ne: job.institution }, status: 'ACTIVE', startsOn: { $lte: new Date(data.endsOn ?? '9999-12-31') }, $or: [{ endsOn: null }, { endsOn: { $gte: new Date(data.startsOn) } }] })) warnings.push('POTENTIAL_ENROLMENT_OVERLAP');
@@ -116,6 +117,7 @@ async function commit(job: any, user: any, renew: () => Promise<void>) {
 }
 export async function retryUpload(user: any, id: string) {
  const job = await jobAccess(user, id);
+ if (job.payloadPurgedAt) throw new AppError(409, 'UPLOAD_PAYLOAD_EXPIRED', 'Upload staging has expired; submit a new file with a new idempotency key');
  if (job.status !== 'FAILED') throw new AppError(409, 'UPLOAD_NOT_FAILED', 'Only failed jobs can be retried');
  const stored = await m.UploadJob.findById(id);
  await m.UploadJob.updateOne({ _id: id, status: 'FAILED' }, { $set: { status: stored!.commitRequested ? 'COMMITTING' : 'PENDING', attempts: 0, leaseUntil: null }, $unset: { leaseToken: 1, failureCode: 1 } });

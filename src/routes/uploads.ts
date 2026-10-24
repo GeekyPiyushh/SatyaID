@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { rateLimit } from 'express-rate-limit';
+import { createRateLimiter } from '../utils/rate-limit';
 import { z } from 'zod';
 import { authenticate } from '../middlewares/auth';
 import { validate } from '../middlewares/validate';
@@ -10,7 +10,7 @@ import { jobAccess, queueUpload, confirmUpload, retryUpload } from '../services/
 import { columns, MAX_BYTES } from '../services/upload-parser';
 import { UploadRowResult } from '../models';
 export const uploadRouter = Router();
-uploadRouter.use(authenticate, rateLimit({ windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Upload request limit reached' } }); } }));
+uploadRouter.use(authenticate, createRateLimiter('uploads.1', { windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Upload request limit reached' } }); } }));
 const multipart = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_BYTES, files: 1, fields: 2, fieldSize: 256, parts: 3 } });
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 uploadRouter.get('/template', (_req, res) => res.type('text/csv').attachment('satyaid-students-template.csv').send(columns.join(',') + '\n'));

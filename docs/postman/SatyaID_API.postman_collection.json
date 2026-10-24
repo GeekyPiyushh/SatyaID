@@ -1,0 +1,4025 @@
+{
+  "info": {
+    "name": "SatyaID API — synthetic examples only",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Operations",
+      "item": [
+        {
+          "name": "GET /api/health",
+          "request": {
+            "method": "GET",
+            "description": "Public service status; no student records.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/ready",
+          "request": {
+            "method": "GET",
+            "description": "Public service status; no student records.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ready"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "academic-years",
+      "item": [
+        {
+          "name": "GET /api/v1/academic-years",
+          "request": {
+            "method": "GET",
+            "description": "All authenticated roles can read these bounded global master lists (first 100).  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/academic-years",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "academic-years"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/academic-years",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/academic-years",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "academic-years"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"Synthetic example\",\n  \"startsOn\": \"2026-08-01T00:00:00Z\",\n  \"endsOn\": \"2027-12-31T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/academic-years/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/academic-years/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "academic-years",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"Synthetic example\",\n  \"startsOn\": \"2026-08-01T00:00:00Z\",\n  \"endsOn\": \"2027-12-31T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "analytics",
+      "item": [
+        {
+          "name": "GET /api/v1/analytics/conflicts/summary",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/conflicts/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "conflicts",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/analytics/enrolments/trends",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/enrolments/trends",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "enrolments",
+                "trends"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/analytics/institutions/{id}/overview",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/institutions/{{id}}/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "institutions",
+                "{{id}}",
+                "overview"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/analytics/intake-utilization",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/intake-utilization",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "intake-utilization"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/analytics/national/overview",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/national/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "national",
+                "overview"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/analytics/uploads/summary",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/uploads/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "uploads",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "audit",
+      "item": [
+        {
+          "name": "GET /api/v1/audit/events",
+          "request": {
+            "method": "GET",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/audit/integrity",
+          "request": {
+            "method": "GET",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit/integrity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "integrity"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "POST /api/v1/auth/browser/csrf",
+          "request": {
+            "method": "POST",
+            "description": "Exact configured Origin; cookie/CSRF transport. csrf is bootstrap; login/refresh/logout require X-CSRF-Token.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/browser/csrf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "browser",
+                "csrf"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/auth/browser/login",
+          "request": {
+            "method": "POST",
+            "description": "Exact configured Origin; cookie/CSRF transport. csrf is bootstrap; login/refresh/logout require X-CSRF-Token.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/browser/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "browser",
+                "login"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"synthetic@example.invalid\",\n  \"password\": \"<local-generated-password>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/auth/browser/logout",
+          "request": {
+            "method": "POST",
+            "description": "Exact configured Origin; cookie/CSRF transport. csrf is bootstrap; login/refresh/logout require X-CSRF-Token.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/browser/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "browser",
+                "logout"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/auth/browser/refresh",
+          "request": {
+            "method": "POST",
+            "description": "Exact configured Origin; cookie/CSRF transport. csrf is bootstrap; login/refresh/logout require X-CSRF-Token.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/browser/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "browser",
+                "refresh"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/auth/login",
+          "request": {
+            "method": "POST",
+            "description": "Non-browser JSON transport: Origin and Sec-Fetch headers forbidden; browser refresh cookie forbidden.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"synthetic@example.invalid\",\n  \"password\": \"<local-generated-password>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/auth/logout",
+          "request": {
+            "method": "POST",
+            "description": "Non-browser JSON transport: Origin and Sec-Fetch headers forbidden; browser refresh cookie forbidden.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"<runtime-token-only>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/auth/me",
+          "request": {
+            "method": "GET",
+            "description": "Current active account only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/auth/refresh",
+          "request": {
+            "method": "POST",
+            "description": "Non-browser JSON transport: Origin and Sec-Fetch headers forbidden; browser refresh cookie forbidden.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: ",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"<runtime-token-only>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "conflicts",
+      "item": [
+        {
+          "name": "GET /api/v1/conflicts",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conflicts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conflicts"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "OPEN",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/conflicts/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conflicts/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conflicts",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/conflicts/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conflicts/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conflicts",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"UNDER_REVIEW\",\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/conflicts/{id}/evidence",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conflicts/{{id}}/evidence",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conflicts",
+                "{{id}}",
+                "evidence"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeCode\": \"Synthetic example\",\n  \"protectedObjectReference\": \"evidence:synthetic-review\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/conflicts/{id}/history",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conflicts/{{id}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conflicts",
+                "{{id}}",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/conflicts/{id}/resolve",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conflicts/{{id}}/resolve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conflicts",
+                "{{id}}",
+                "resolve"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolution\": \"CONFIRMED_TRANSFER\",\n  \"reasonCode\": \"Synthetic example\",\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "consents",
+      "item": [
+        {
+          "name": "POST /api/v1/consents/{id}/approve",
+          "request": {
+            "method": "POST",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consents/{{id}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "consents",
+                "{{id}}",
+                "approve"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claims\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/consents/{id}/reject",
+          "request": {
+            "method": "POST",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consents/{{id}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "consents",
+                "{{id}}",
+                "reject"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/consents/{id}/revoke",
+          "request": {
+            "method": "POST",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consents/{{id}}/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "consents",
+                "{{id}}",
+                "revoke"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/consents/history",
+          "request": {
+            "method": "GET",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consents/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "consents",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/consents/requests",
+          "request": {
+            "method": "GET",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consents/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "consents",
+                "requests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "credentials",
+      "item": [
+        {
+          "name": "POST /api/v1/credentials",
+          "request": {
+            "method": "POST",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credentials",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credentials"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": \"000000000000000000000001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/credentials/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Owning linked student or bound approved employer; metadata only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credentials/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credentials",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/credentials/{id}/revoke",
+          "request": {
+            "method": "POST",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credentials/{{id}}/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credentials",
+                "{{id}}",
+                "revoke"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/credentials/verify",
+          "request": {
+            "method": "POST",
+            "description": "Active account and APPROVED employer profile; employer-bound invitation/request/credential only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credentials/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credentials",
+                "verify"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"<runtime-token-only>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "enrolments",
+      "item": [
+        {
+          "name": "GET /api/v1/enrolments",
+          "request": {
+            "method": "GET",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "DRAFT",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/enrolments",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student\": \"000000000000000000000001\",\n  \"allocation\": \"000000000000000000000001\",\n  \"institutionStudentId\": \"Synthetic example\",\n  \"admissionDate\": \"2026-08-01\",\n  \"startsOn\": \"2026-08-01\",\n  \"idempotencyKey\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/enrolments/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/enrolments/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCode\": \"Synthetic example\",\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/enrolments/{id}/activate",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}/activate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}",
+                "activate"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/enrolments/{id}/history",
+          "request": {
+            "method": "GET",
+            "description": "Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}",
+                "history"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/enrolments/{id}/withdraw",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}",
+                "withdraw"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "institutions",
+      "item": [
+        {
+          "name": "GET /api/v1/institutions",
+          "request": {
+            "method": "GET",
+            "description": "AICTE or active institution membership; institution list returns own memberships for non-regulators.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "Synthetic example",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/institutions",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pid\": \"Synthetic example\",\n  \"name\": \"Synthetic example\",\n  \"state\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/institutions/{id}",
+          "request": {
+            "method": "GET",
+            "description": "AICTE or active institution membership; institution list returns own memberships for non-regulators.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/institutions/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "AICTE or active own institution admin membership. Only AICTE changes institution status or appoints admins; staff accounts must already exist.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Synthetic example\",\n  \"state\": \"Synthetic example\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/institutions/{id}/intake-report",
+          "request": {
+            "method": "GET",
+            "description": "AICTE or active institution membership; institution list returns own memberships for non-regulators.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}/intake-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}",
+                "intake-report"
+              ],
+              "query": [
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/institutions/{id}/memberships",
+          "request": {
+            "method": "POST",
+            "description": "AICTE or active own institution admin membership. Only AICTE changes institution status or appoints admins; staff accounts must already exist.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}",
+                "memberships"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": \"000000000000000000000001\",\n  \"role\": \"INSTITUTION_ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/institutions/{id}/memberships/{membershipId}",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}/memberships/{{membershipId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}",
+                "memberships",
+                "{{membershipId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/institutions/{id}/offerings",
+          "request": {
+            "method": "GET",
+            "description": "AICTE or active institution membership; institution list returns own memberships for non-regulators.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}/offerings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}",
+                "offerings"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "intakes",
+      "item": [
+        {
+          "name": "POST /api/v1/intakes",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intakes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "intakes"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"offering\": \"000000000000000000000001\",\n  \"academicYear\": \"000000000000000000000001\",\n  \"category\": \"000000000000000000000001\",\n  \"kind\": \"BASE\",\n  \"approvedSeats\": 0,\n  \"sourceReference\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/intakes/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intakes/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "intakes",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvedSeats\": 0,\n  \"sourceReference\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "intelligence",
+      "item": [
+        {
+          "name": "GET /api/v1/intelligence/anomalies",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/anomalies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "intelligence",
+                "anomalies"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/intelligence/institutions/{id}/health",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/institutions/{{id}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "intelligence",
+                "institutions",
+                "{{id}}",
+                "health"
+              ],
+              "query": [
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/intelligence/institutions/{id}/quality-score",
+          "request": {
+            "method": "GET",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/institutions/{{id}}/quality-score",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "intelligence",
+                "institutions",
+                "{{id}}",
+                "quality-score"
+              ],
+              "query": [
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/intelligence/policy-simulations",
+          "request": {
+            "method": "POST",
+            "description": "AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/policy-simulations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "intelligence",
+                "policy-simulations"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"academicYear\": \"000000000000000000000001\",\n  \"category\": \"000000000000000000000001\",\n  \"asOf\": \"2026-08-01T00:00:00Z\",\n  \"hypothetical\": {\n    \"kind\": \"BASE\",\n    \"method\": \"FIXED\",\n    \"value\": 0,\n    \"rounding\": \"FLOOR\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "offerings",
+      "item": [
+        {
+          "name": "POST /api/v1/offerings",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/offerings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "offerings"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"000000000000000000000001\",\n  \"program\": \"000000000000000000000001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/offerings/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/offerings/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "offerings",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/offerings/{id}/capacity",
+          "request": {
+            "method": "GET",
+            "description": "AICTE or active institution membership; institution list returns own memberships for non-regulators.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/offerings/{{id}}/capacity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "offerings",
+                "{{id}}",
+                "capacity"
+              ],
+              "query": [
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/offerings/{id}/quota-rules",
+          "request": {
+            "method": "GET",
+            "description": "AICTE or active institution membership; institution list returns own memberships for non-regulators.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/offerings/{{id}}/quota-rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "offerings",
+                "{{id}}",
+                "quota-rules"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "programs",
+      "item": [
+        {
+          "name": "GET /api/v1/programs",
+          "request": {
+            "method": "GET",
+            "description": "All authenticated roles can read these bounded global master lists (first 100).  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/programs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "programs"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/programs",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/programs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "programs"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"Synthetic example\",\n  \"name\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/programs/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/programs/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "programs",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"Synthetic example\",\n  \"name\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "quota-rules",
+      "item": [
+        {
+          "name": "POST /api/v1/quota-rules",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quota-rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quota-rules"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"offering\": \"000000000000000000000001\",\n  \"academicYear\": \"000000000000000000000001\",\n  \"category\": \"000000000000000000000001\",\n  \"version\": 1,\n  \"kind\": \"BASE\",\n  \"method\": \"FIXED\",\n  \"value\": 0,\n  \"rounding\": \"FLOOR\",\n  \"effectiveFrom\": \"2026-08-01T00:00:00Z\",\n  \"effectiveUntil\": \"2027-12-31T00:00:00Z\",\n  \"sourceReference\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/quota-rules/{id}/retire",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quota-rules/{{id}}/retire",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quota-rules",
+                "{{id}}",
+                "retire"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "reports",
+      "item": [
+        {
+          "name": "GET /api/v1/reports",
+          "request": {
+            "method": "GET",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/reports",
+          "request": {
+            "method": "POST",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportType\": \"ENROLMENT_SUMMARY\",\n  \"format\": \"JSON\",\n  \"filters\": {\n    \"institution\": \"000000000000000000000001\",\n    \"academicYear\": \"000000000000000000000001\",\n    \"program\": \"000000000000000000000001\",\n    \"category\": \"000000000000000000000001\",\n    \"state\": \"Synthetic example\",\n    \"from\": \"2026-08-01\",\n    \"to\": \"2026-08-01\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/reports/{id}",
+          "request": {
+            "method": "GET",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/reports/{id}/download",
+          "request": {
+            "method": "GET",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/{{id}}/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "{{id}}",
+                "download"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/reports/prevalidation",
+          "request": {
+            "method": "GET",
+            "description": "AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/prevalidation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "prevalidation"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "academicYear",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "program",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "Synthetic example",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-08-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-08-01",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "seat-categories",
+      "item": [
+        {
+          "name": "GET /api/v1/seat-categories",
+          "request": {
+            "method": "GET",
+            "description": "All authenticated roles can read these bounded global master lists (first 100).  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/seat-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "seat-categories"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/seat-categories",
+          "request": {
+            "method": "POST",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/seat-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "seat-categories"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"Synthetic example\",\n  \"name\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/seat-categories/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Authenticated account; additional object permissions enforced server-side.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/seat-categories/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "seat-categories",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"Synthetic example\",\n  \"name\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "students",
+      "item": [
+        {
+          "name": "GET /api/v1/students",
+          "request": {
+            "method": "GET",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "Synthetic example",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/students",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"000000000000000000000001\",\n  \"institutionStudentId\": \"Synthetic example\",\n  \"displayName\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/students/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/v1/students/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"000000000000000000000001\",\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/students/{id}/account-link",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}/account-link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}",
+                "account-link"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": \"000000000000000000000001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/students/{id}/apaar/link",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}/apaar/link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}",
+                "apaar",
+                "link"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"000000000000000000000001\",\n  \"apaarId\": \"<synthetic-12-digit-fixture-only>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/students/{id}/identity-status",
+          "request": {
+            "method": "GET",
+            "description": "Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}/identity-status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}",
+                "identity-status"
+              ],
+              "query": [
+                {
+                  "key": "institution",
+                  "value": "000000000000000000000001",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/students/{id}/verify-apaar",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator. MOCKED only; no official APAAR integration; disabled in production. Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}/verify-apaar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}",
+                "verify-apaar"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"000000000000000000000001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "transfers",
+      "item": [
+        {
+          "name": "POST /api/v1/transfers",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transfers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transfers"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceEnrolment\": \"000000000000000000000001\",\n  \"targetAllocation\": \"000000000000000000000001\",\n  \"targetInstitutionStudentId\": \"Synthetic example\",\n  \"startsOn\": \"2026-08-01\",\n  \"admissionDate\": \"2026-08-01\",\n  \"idempotencyKey\": \"Synthetic example\",\n  \"reasonCode\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/transfers/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transfers/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transfers",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/transfers/{id}/approve",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transfers/{{id}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transfers",
+                "{{id}}",
+                "approve"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCode\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/transfers/{id}/reject",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transfers/{{id}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transfers",
+                "{{id}}",
+                "reject"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCode\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "uploads",
+      "item": [
+        {
+          "name": "GET /api/v1/uploads/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "{{id}}"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/uploads/{id}/commit",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/{{id}}/commit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "{{id}}",
+                "commit"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/uploads/{id}/error-report",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/{{id}}/error-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "{{id}}",
+                "error-report"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/uploads/{id}/results",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/{{id}}/results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "{{id}}",
+                "results"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/uploads/{id}/retry",
+          "request": {
+            "method": "POST",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/{{id}}/retry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "{{id}}",
+                "retry"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/uploads/students",
+          "request": {
+            "method": "POST",
+            "description": "Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "students"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "institution",
+                  "value": "{{institutionId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idempotencyKey",
+                  "value": "synthetic-upload-unique-key",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/uploads/template",
+          "request": {
+            "method": "GET",
+            "description": "Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/uploads/template",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "template"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "verification",
+      "item": [
+        {
+          "name": "POST /api/v1/verification/employers",
+          "request": {
+            "method": "POST",
+            "description": "AICTE governs an existing active EMPLOYER account; no employer directory or account creation endpoint.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/verification/employers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "verification",
+                "employers"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": \"000000000000000000000001\",\n  \"organization\": \"Synthetic example\",\n  \"status\": \"APPROVED\",\n  \"approvalReference\": \"Synthetic example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/verification/invitations",
+          "request": {
+            "method": "POST",
+            "description": "Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/verification/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "verification",
+                "invitations"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrolment\": \"000000000000000000000001\",\n  \"employer\": \"000000000000000000000001\",\n  \"claims\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/verification/requests",
+          "request": {
+            "method": "GET",
+            "description": "Active account and APPROVED employer profile; employer-bound invitation/request/credential only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/verification/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "verification",
+                "requests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/verification/requests",
+          "request": {
+            "method": "POST",
+            "description": "Active account and APPROVED employer profile; employer-bound invitation/request/credential only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/verification/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "verification",
+                "requests"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invitationToken\": \"<runtime-token-only>\",\n  \"purposeCode\": \"Synthetic example\",\n  \"claims\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/verification/requests/{id}/result",
+          "request": {
+            "method": "GET",
+            "description": "Active account and APPROVED employer profile; employer-bound invitation/request/credential only.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: EMPLOYER",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/verification/requests/{{id}}/result",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "verification",
+                "requests",
+                "{{id}}",
+                "result"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

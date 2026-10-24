@@ -1,0 +1,304 @@
+{
+  "query": "StudentInstitution institution/status sort _id",
+  "winningPlan": {
+    "isCached": false,
+    "stage": "LIMIT",
+    "limitAmount": 20,
+    "inputStage": {
+      "stage": "FETCH",
+      "nss": "synthetic_e2e_test.studentinstitutions",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "nss": "synthetic_e2e_test.studentinstitutions",
+        "keyPattern": {
+          "institution": 1,
+          "status": 1,
+          "_id": 1
+        },
+        "indexName": "institution_1_status_1__id_1",
+        "isMultiKey": false,
+        "multiKeyPaths": {
+          "institution": [],
+          "status": [],
+          "_id": []
+        },
+        "isUnique": false,
+        "isSparse": false,
+        "isPartial": false,
+        "indexVersion": 2,
+        "direction": "forward",
+        "indexBounds": {
+          "institution": [
+            "[ObjectId('6adcb73ae6873ce59cb5e9f6'), ObjectId('6adcb73ae6873ce59cb5e9f6')]"
+          ],
+          "status": [
+            "[\"ACTIVE\", \"ACTIVE\"]"
+          ],
+          "_id": [
+            "[MinKey, MaxKey]"
+          ]
+        }
+      }
+    }
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 4,
+    "executionTimeMillis": 1,
+    "totalKeysExamined": 4,
+    "totalDocsExamined": 4,
+    "executionStages": {
+      "isCached": false,
+      "stage": "LIMIT",
+      "nReturned": 4,
+      "executionTimeMillisEstimate": 0,
+      "works": 6,
+      "advanced": 4,
+      "needTime": 0,
+      "needYield": 0,
+      "saveState": 1,
+      "restoreState": 1,
+      "isEOF": 1,
+      "limitAmount": 20,
+      "inputStage": {
+        "stage": "FETCH",
+        "nReturned": 4,
+        "executionTimeMillisEstimate": 0,
+        "works": 6,
+        "advanced": 4,
+        "needTime": 0,
+        "needYield": 0,
+        "saveState": 1,
+        "restoreState": 1,
+        "isEOF": 1,
+        "nss": "synthetic_e2e_test.studentinstitutions",
+        "docsExamined": 4,
+        "alreadyHasObj": 0,
+        "inputStage": {
+          "stage": "IXSCAN",
+          "nReturned": 4,
+          "executionTimeMillisEstimate": 0,
+          "works": 5,
+          "advanced": 4,
+          "needTime": 0,
+          "needYield": 0,
+          "saveState": 1,
+          "restoreState": 1,
+          "isEOF": 1,
+          "nss": "synthetic_e2e_test.studentinstitutions",
+          "keyPattern": {
+            "institution": 1,
+            "status": 1,
+            "_id": 1
+          },
+          "indexName": "institution_1_status_1__id_1",
+          "isMultiKey": false,
+          "multiKeyPaths": {
+            "institution": [],
+            "status": [],
+            "_id": []
+          },
+          "isUnique": false,
+          "isSparse": false,
+          "isPartial": false,
+          "indexVersion": 2,
+          "direction": "forward",
+          "indexBounds": {
+            "institution": [
+              "[ObjectId('6adcb73ae6873ce59cb5e9f6'), ObjectId('6adcb73ae6873ce59cb5e9f6')]"
+            ],
+            "status": [
+              "[\"ACTIVE\", \"ACTIVE\"]"
+            ],
+            "_id": [
+              "[MinKey, MaxKey]"
+            ]
+          },
+          "keysExamined": 4,
+          "seeks": 1,
+          "dupsTested": 0,
+          "dupsDropped": 0,
+          "peakTrackedMemBytes": 0
+        }
+      }
+    },
+    "allPlansExecution": [
+      {
+        "nReturned": 4,
+        "executionTimeMillisEstimate": 0,
+        "totalKeysExamined": 4,
+        "totalDocsExamined": 4,
+        "score": 2.8002000000000002,
+        "executionStages": {
+          "isCached": false,
+          "stage": "LIMIT",
+          "nReturned": 4,
+          "executionTimeMillisEstimate": 0,
+          "works": 5,
+          "advanced": 4,
+          "needTime": 0,
+          "needYield": 0,
+          "saveState": 1,
+          "restoreState": 1,
+          "isEOF": 1,
+          "limitAmount": 20,
+          "inputStage": {
+            "stage": "FETCH",
+            "nReturned": 4,
+            "executionTimeMillisEstimate": 0,
+            "works": 5,
+            "advanced": 4,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "nss": "synthetic_e2e_test.studentinstitutions",
+            "docsExamined": 4,
+            "alreadyHasObj": 0,
+            "inputStage": {
+              "stage": "IXSCAN",
+              "nReturned": 4,
+              "executionTimeMillisEstimate": 0,
+              "works": 5,
+              "advanced": 4,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "nss": "synthetic_e2e_test.studentinstitutions",
+              "keyPattern": {
+                "institution": 1,
+                "status": 1,
+                "_id": 1
+              },
+              "indexName": "institution_1_status_1__id_1",
+              "isMultiKey": false,
+              "multiKeyPaths": {
+                "institution": [],
+                "status": [],
+                "_id": []
+              },
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": 2,
+              "direction": "forward",
+              "indexBounds": {
+                "institution": [
+                  "[ObjectId('6adcb73ae6873ce59cb5e9f6'), ObjectId('6adcb73ae6873ce59cb5e9f6')]"
+                ],
+                "status": [
+                  "[\"ACTIVE\", \"ACTIVE\"]"
+                ],
+                "_id": [
+                  "[MinKey, MaxKey]"
+                ]
+              },
+              "keysExamined": 4,
+              "seeks": 1,
+              "dupsTested": 0,
+              "dupsDropped": 0,
+              "peakTrackedMemBytes": 0
+            }
+          }
+        }
+      },
+      {
+        "nReturned": 0,
+        "executionTimeMillisEstimate": 0,
+        "totalKeysExamined": 4,
+        "totalDocsExamined": 4,
+        "score": 1.0001,
+        "executionStages": {
+          "isCached": false,
+          "stage": "SORT",
+          "nReturned": 0,
+          "executionTimeMillisEstimate": 0,
+          "works": 5,
+          "advanced": 0,
+          "needTime": 5,
+          "needYield": 0,
+          "saveState": 2,
+          "restoreState": 1,
+          "isEOF": 0,
+          "sortPattern": {
+            "_id": 1
+          },
+          "memLimit": 104857600,
+          "limitAmount": 20,
+          "type": "simple",
+          "totalDataSizeSorted": 1001,
+          "usedDisk": false,
+          "spills": 0,
+          "spilledRecords": 0,
+          "spilledBytes": 0,
+          "spilledDataStorageSize": 0,
+          "peakTrackedMemBytes": 1001,
+          "inputStage": {
+            "stage": "FETCH",
+            "filter": {
+              "status": {
+                "$eq": "ACTIVE"
+              }
+            },
+            "nReturned": 4,
+            "executionTimeMillisEstimate": 0,
+            "works": 5,
+            "advanced": 4,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 2,
+            "restoreState": 1,
+            "isEOF": 1,
+            "nss": "synthetic_e2e_test.studentinstitutions",
+            "docsExamined": 4,
+            "alreadyHasObj": 0,
+            "inputStage": {
+              "stage": "IXSCAN",
+              "nReturned": 4,
+              "executionTimeMillisEstimate": 0,
+              "works": 5,
+              "advanced": 4,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 2,
+              "restoreState": 1,
+              "isEOF": 1,
+              "nss": "synthetic_e2e_test.studentinstitutions",
+              "keyPattern": {
+                "institution": 1,
+                "institutionStudentId": 1
+              },
+              "indexName": "institution_1_institutionStudentId_1",
+              "isMultiKey": false,
+              "multiKeyPaths": {
+                "institution": [],
+                "institutionStudentId": []
+              },
+              "isUnique": true,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": 2,
+              "direction": "forward",
+              "indexBounds": {
+                "institution": [
+                  "[ObjectId('6adcb73ae6873ce59cb5e9f6'), ObjectId('6adcb73ae6873ce59cb5e9f6')]"
+                ],
+                "institutionStudentId": [
+                  "[MinKey, MaxKey]"
+                ]
+              },
+              "keysExamined": 4,
+              "seeks": 1,
+              "dupsTested": 0,
+              "dupsDropped": 0,
+              "peakTrackedMemBytes": 0
+            }
+          }
+        }
+      }
+    ]
+  }
+}

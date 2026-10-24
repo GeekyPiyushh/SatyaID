@@ -1,4 +1,4 @@
-import { rateLimit } from 'express-rate-limit';
+import { createRateLimiter } from '../utils/rate-limit';
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
@@ -10,7 +10,7 @@ import { writeScope, audit } from '../services/student';
 import * as m from '../models';
 import { AppError } from '../utils/app-error';
 export const enrolmentRouter = Router();
-enrolmentRouter.use(authenticate, rateLimit({ windowMs: 60000, limit: 120, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
+enrolmentRouter.use(authenticate, createRateLimiter('enrolments.1', { windowMs: 60000, limit: 120, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 enrolmentRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid enrolment reference')));
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 enrolmentRouter.post('/', validate(enrolmentSchema), async (_req, res) => { res.status(201); reply(res, await service.createEnrolment(res.locals.user, res.locals.validated)); });

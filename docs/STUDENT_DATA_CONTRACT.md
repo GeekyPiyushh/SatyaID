@@ -39,7 +39,7 @@ Profile correction:
 {"institution":"<institutionId>","displayName":"Synthetic Corrected","version":1}
 ```
 
-Use status INACTIVE for soft deactivation. No destructive delete exists. Identity corrections cannot overwrite a linked vault through this API. Only a single active key version is supported. New identity links fail closed if vaults with another version exist; reconcile through an authorized rekey procedure before rotating. A repeat of the same current identity link succeeds; a different identifier requires regulatory review. HMAC collisions/existing matches return a generic review-required error without identifying another student.
+Use status INACTIVE for soft deactivation. No destructive delete exists. Identity corrections cannot overwrite a linked vault through this API. Batch 4 supports configured historic key versions plus one active write version. Linking fails closed if any stored version is missing from the keyring. See SECURITY_HARDENING.md for operator-assisted rotation; bulk re-encryption is not implemented. A repeat of the same current identity link succeeds; a different identifier requires regulatory review. HMAC collisions/existing matches return a generic review-required error without identifying another student.
 
 Principal errors: 401 UNAUTHENTICATED/INVALID_TOKEN, 403 FORBIDDEN, 404 NOT_FOUND, 409 WRITE_CONFLICT/IDENTITY_ALREADY_LINKED/IDENTITY_REVIEW_REQUIRED/DUPLICATE_RECORD, 422 VALIDATION_ERROR/INVALID_STUDENT_ACCOUNT, 503 IDENTITY_KEYS_UNAVAILABLE. No raw identifiers, lookup digests, ciphertext or cryptographic keys appear in ordinary student responses.
 

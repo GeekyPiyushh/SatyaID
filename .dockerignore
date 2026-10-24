@@ -1,0 +1,14 @@
+.git
+node_modules
+dist
+.env
+.env.*
+!.env.example
+samples
+attachments
+*.log
+coverage
+*.pem
+*.key
+*.dump
+*.archive

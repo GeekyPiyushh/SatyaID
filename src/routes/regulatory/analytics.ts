@@ -1,3 +1,4 @@
+import { createRateLimiter } from '../../utils/rate-limit';
 import { Router } from 'express';
 import { authenticate, requireRoles } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
@@ -6,7 +7,7 @@ import { objectId } from '../../validators/batch2';
 import * as service from '../../services/regulatory/analytics';
 import { AppError } from '../../utils/app-error';
 export const analyticsRouter = Router();
-analyticsRouter.use(authenticate);
+analyticsRouter.use(authenticate, createRateLimiter('analyticsRouter', { windowMs: 60000, limit: 60, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 analyticsRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid institution reference')));
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 analyticsRouter.get('/national/overview', requireRoles('AICTE_ADMIN'), validate(analyticsFilters, 'query'), async (_req, res) => reply(res, await service.overview(res.locals.user, res.locals.validated)));
