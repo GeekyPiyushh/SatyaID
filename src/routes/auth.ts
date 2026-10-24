@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { rateLimit } from 'express-rate-limit';
+import { z } from 'zod';
+import { validate } from '../middlewares/validate';
+import { authenticate } from '../middlewares/auth';
+import * as auth from '../services/auth';
+export const authRouter = Router();
+authRouter.use(rateLimit({ windowMs: 60000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Too many authentication requests' } }); } }));
+const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
+authRouter.post('/login', validate(z.object({ email: z.email().toLowerCase(), password: z.string().min(1).max(72).refine(value => Buffer.byteLength(value, 'utf8') <= 72) }).strict()), async (_req, res) => { const v = res.locals.validated; reply(res, await auth.login(v.email, v.password)); });
+const token = z.object({ refreshToken: z.string().min(32).max(256) }).strict();
+authRouter.post('/refresh', validate(token), async (_req, res) => reply(res, await auth.refresh(res.locals.validated.refreshToken)));
+authRouter.post('/logout', validate(token), async (_req, res) => { await auth.logout(res.locals.validated.refreshToken); reply(res, null); });
+authRouter.get('/me', authenticate, (_req, res) => reply(res, res.locals.user));

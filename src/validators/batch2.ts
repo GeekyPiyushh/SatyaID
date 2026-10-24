@@ -1,0 +1,10 @@
+import { z } from 'zod';
+export const objectId = z.string().regex(/^[a-f\d]{24}$/i);
+export const name = z.string().trim().min(1).max(160);
+export const code = z.string().trim().regex(/^[A-Za-z0-9_.:-]{1,80}$/);
+export const apaar = z.string().regex(/^\d{12}$/, 'Expected a 12-digit identifier; format alone does not prove validity');
+export const day = z.iso.date().refine(v => !Number.isNaN(Date.parse(v)));
+export const pagination = { page: z.coerce.number().int().min(1).default(1), limit: z.coerce.number().int().min(1).max(100).default(20) };
+export const createStudentSchema = z.object({ institution: objectId, institutionStudentId: code, displayName: name, dateOfBirth: day.optional(), apaarId: apaar.optional(), existingStudent: objectId.optional() }).strict();
+export const updateStudentSchema = z.object({ institution: objectId, displayName: name.optional(), dateOfBirth: day.optional(), status: z.enum(['ACTIVE', 'INACTIVE']).optional(), version: z.number().int().positive() }).strict();
+export const enrolmentSchema = z.object({ student: objectId, allocation: objectId, institutionStudentId: code, admissionDate: day, startsOn: day, endsOn: day.optional(), entryType: z.enum(['REGULAR', 'LATERAL_ENTRY', 'TRANSFER']).default('REGULAR'), idempotencyKey: code }).strict().refine(v => !v.endsOn || v.startsOn <= v.endsOn, 'Invalid enrolment period');

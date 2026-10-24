@@ -1,0 +1,43 @@
+import { createStudent, linkIdentity } from '../src/services/student';
+import { createEnrolment, changeAdmission } from '../src/services/admissions';
+import bcrypt from 'bcryptjs';
+import { connectDatabase, disconnectDatabase } from '../src/config/database';
+import { parseEnvironment } from '../src/config/env';
+import * as m from '../src/models';
+async function main() {
+ const c = parseEnvironment(process.env);
+ if (c.NODE_ENV === 'production' || process.env.ALLOW_DEMO_SEED !== 'true' || !c.MONGODB_URI || !new URL(c.MONGODB_URI).pathname.endsWith('_demo')) throw new Error('Seed requires a dedicated _demo database and explicit opt-in');
+ const email = process.env.DEMO_ADMIN_EMAIL, password = process.env.DEMO_ADMIN_PASSWORD;
+ if (!email?.endsWith('@example.invalid') || !password || Buffer.byteLength(password) < 16 || Buffer.byteLength(password) > 72) throw new Error('Configure synthetic demo credentials securely');
+ await connectDatabase(c.MONGODB_URI);
+ for (const model of Object.values(m)) if (typeof model === 'function' && 'createIndexes' in model) await (model as any).createIndexes();
+ const existing = await m.User.findOne({ email });
+ if (existing && existing.role !== 'AICTE_ADMIN') throw new Error('Existing account conflict');
+ await m.User.updateOne({ email }, { $setOnInsert: { email, passwordHash: await bcrypt.hash(password, 12), role: 'AICTE_ADMIN' } }, { upsert: true });
+ for (const code of ['BASE', 'NRI', 'OCI', 'FN', 'CIWG']) await m.SeatCategory.updateOne({ code }, { $setOnInsert: { code, name: `Demo ${code}` } }, { upsert: true });
+ await m.Institution.updateOne({ pid: 'DEMO-SATYAID-001' }, { $setOnInsert: { pid: 'DEMO-SATYAID-001', name: 'Fictional Satya Institute', state: 'Demo State' } }, { upsert: true });
+ await m.Program.updateOne({ code: 'DEMO-CS' }, { $setOnInsert: { code: 'DEMO-CS', name: 'Fictional Computer Science' } }, { upsert: true });
+ const institution = await m.Institution.findOne({ pid: 'DEMO-SATYAID-001' });
+ const program = await m.Program.findOne({ code: 'DEMO-CS' });
+ const year = await m.AcademicYear.findOneAndUpdate({ code: 'DEMO-2026-27' }, { $setOnInsert: { code: 'DEMO-2026-27', startsOn: new Date('2026-07-01'), endsOn: new Date('2027-06-30') } }, { upsert: true, returnDocument: 'after' });
+ const offering = await m.InstitutionProgram.findOneAndUpdate({ institution: institution!._id, program: program!._id }, { $setOnInsert: { institution: institution!._id, program: program!._id } }, { upsert: true, returnDocument: 'after' });
+ const category = await m.SeatCategory.findOne({ code: 'BASE' });
+ await m.IntakeAllocation.updateOne({ offering: offering!._id, academicYear: year!._id, category: category!._id, kind: 'BASE' }, { $setOnInsert: { offering: offering!._id, academicYear: year!._id, category: category!._id, kind: 'BASE', approvedSeats: 60, sourceReference: 'Fictional demonstration allocation; not regulatory approval' } }, { upsert: true });
+ const actor = await m.User.findOne({ email });
+ const basePool = await m.IntakeAllocation.findOne({ offering: offering!._id, academicYear: year!._id, category: category!._id, kind: 'BASE' });
+ const extraCategory = await m.SeatCategory.findOne({ code: 'FN' });
+ await m.IntakeAllocation.updateOne({ offering: offering!._id, academicYear: year!._id, category: extraCategory!._id, kind: 'SUPERNUMERARY' }, { $setOnInsert: { offering: offering!._id, academicYear: year!._id, category: extraCategory!._id, kind: 'SUPERNUMERARY', approvedSeats: 5, sourceReference: 'Fictional extra pool; no regulatory percentage implied' } }, { upsert: true });
+ let profile = await m.StudentInstitution.findOne({ institution: institution!._id, institutionStudentId: 'DEMO-STUDENT-001' });
+ if (!profile) { await createStudent(actor, { institution: String(institution!._id), institutionStudentId: 'DEMO-STUDENT-001', displayName: 'Synthetic Satya Student' }); profile = await m.StudentInstitution.findOne({ institution: institution!._id, institutionStudentId: 'DEMO-STUDENT-001' }); }
+ if (process.env.APAAR_ENCRYPTION_KEY && process.env.APAAR_LOOKUP_KEY && process.env.APAAR_KEY_VERSION && !await m.ApaarIdentityVault.exists({ student: profile!.student })) await linkIdentity(actor, String(profile!.student), String(institution!._id), '000000000001');
+ const admission = await createEnrolment(actor, { student: String(profile!.student), allocation: String(basePool!._id), institutionStudentId: 'DEMO-STUDENT-001', admissionDate: '2026-08-01', startsOn: '2026-08-01', entryType: 'REGULAR', idempotencyKey: 'DEMO-ADMISSION-001' });
+ if (admission.status === 'DRAFT') await changeAdmission(actor, String(admission._id), 'activate');
+ const other = await m.Institution.findOneAndUpdate({ pid: 'DEMO-SATYAID-002' }, { $setOnInsert: { pid: 'DEMO-SATYAID-002', name: 'Fictional Transfer Institute', state: 'Demo State' } }, { upsert: true, returnDocument: 'after' });
+ const otherOffering = await m.InstitutionProgram.findOneAndUpdate({ institution: other!._id, program: program!._id }, { $setOnInsert: { institution: other!._id, program: program!._id } }, { upsert: true, returnDocument: 'after' });
+ const otherPool = await m.IntakeAllocation.findOneAndUpdate({ offering: otherOffering!._id, academicYear: year!._id, category: category!._id, kind: 'BASE' }, { $setOnInsert: { offering: otherOffering!._id, academicYear: year!._id, category: category!._id, kind: 'BASE', approvedSeats: 5, sourceReference: 'Fictional second institution pool' } }, { upsert: true, returnDocument: 'after' });
+ if (!await m.StudentInstitution.exists({ student: profile!.student, institution: other!._id })) await createStudent(actor, { existingStudent: String(profile!.student), institution: String(other!._id), institutionStudentId: 'DEMO-TRANSFER-001', displayName: 'Synthetic Satya Student' });
+ const overlap = await createEnrolment(actor, { student: String(profile!.student), allocation: String(otherPool!._id), institutionStudentId: 'DEMO-TRANSFER-001', admissionDate: '2026-08-01', startsOn: '2026-08-01', entryType: 'TRANSFER', idempotencyKey: 'DEMO-OVERLAP-001' });
+ if (overlap.status === 'DRAFT') await changeAdmission(actor, String(overlap._id), 'activate');
+ console.log('Synthetic demo seed completed; existing values preserved. No official verification or regulatory percentages seeded.');
+}
+main().catch(() => { console.error('Demo seed failed. Check opt-in, private configuration and database availability.'); process.exitCode = 1; }).finally(disconnectDatabase);
