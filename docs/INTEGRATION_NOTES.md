@@ -29,3 +29,8 @@ Analytics counts registered records only. Display denominator/coverage notes, ob
 Report creation returns 202; poll status until COMPLETED/FAILED, then request an authenticated download. Worker now processes uploads and reports. CSV/JSON artifacts are readiness reports, not official filings. Optional audit signing distinguishes unsigned/valid/invalid/key-unavailable records and checks only the requested page.
 
 Batch 4 still needs a final frontend integration master derived from actual contracts, production cookie/BFF and abuse hardening, legal/privacy/employer onboarding review, retention/key rotation, deployment recovery/load testing and any separately authorized official adapters. Do not create the final master file yet.
+
+
+## Batch 4 final integration update
+
+Use root FRONTEND_INTEGRATION_MASTER.md and generated shared/api-types.ts for all98 operations and five-role integration. shared/browser-client.ts demonstrates memory-only JWT plus cookie/CSRF transport. No student enrolment discovery, credential listing, general account provisioning, employer directory, certificate PDF or graduation endpoint is implemented. Do not fabricate these client actions.

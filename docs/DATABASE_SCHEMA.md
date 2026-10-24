@@ -322,6 +322,7 @@ Collection: `verificationinvitations`.
 | maxClaims | Array | false | included |
 | expiresAt | Date | true | included |
 | usedAt | Date | false | included |
+| tokenPurgedAt | Date | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -399,6 +400,7 @@ Collection: `digitalcredentials`.
 | tokenDigest | String | true | hidden |
 | expiresAt | Date | true | included |
 | revokedAt | Date | false | included |
+| tokenPurgedAt | Date | false | included |
 | source | String | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
@@ -459,6 +461,7 @@ Collection: `reportjobs`.
 | metadata | Mixed | false | included |
 | content | Buffer | false | hidden |
 | contentDigest | String | false | included |
+| payloadPurgedAt | Date | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -497,6 +500,24 @@ Indexes (plus automatic unique `_id`):
     }
   ]
 ]
+```
+
+## IdentityRegistryLock
+
+Collection: `identityregistrylocks`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| _id | String | false | included |
+| version | Number | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[]
 ```
 
 ## User
@@ -1101,6 +1122,7 @@ Collection: `uploadjobs`.
 | leaseUntil | Date | false | included |
 | attempts | Number | false | included |
 | failureCode | String | false | included |
+| payloadPurgedAt | Date | false | included |
 | _id | ObjectId | false | included |
 | createdAt | Date | false | included |
 | updatedAt | Date | false | included |
@@ -1459,6 +1481,10 @@ Collection: `refreshsessions`.
 | user | ObjectId → User | true | included |
 | digest | String | true | hidden |
 | family | String | true | included |
+| transport | String | false | included |
+| browserOrigin | String | false | included |
+| csrfDigest | String | false | hidden |
+| familyExpiresAt | Date | false | included |
 | expiresAt | Date | true | included |
 | revokedAt | Date | false | included |
 | _id | ObjectId | false | included |

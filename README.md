@@ -109,3 +109,8 @@ npm run worker
 This provisions only `student@example.invalid` and `employer@example.invalid` synthetic accounts, links the synthetic student and approves a fictional employer application profile with a DEMO_ONLY reference. Passwords come from private environment variables, never hardcoded defaults; reruns preserve existing passwords/decisions. No consent is granted automatically. Log in as the student to initiate an invitation and approve sharing; then use the employer's token to verify only authorized claims. Existing accounts with conflicting roles/decisions cause a safe failure rather than being overwritten.
 
 Analytics, signals and operational scores use currently registered data, not a national census, official ratings or predictive fraud detection. Simulation is explicitly hypothetical and does not mutate allocations/rules/admissions. Completion/graduation and real official verification remain unavailable.
+
+
+## Batch 4 final integration update
+
+The final backend Phases 01–15 are implemented for documented development/demo use. Start frontend work at [FRONTEND_INTEGRATION_MASTER.md](FRONTEND_INTEGRATION_MASTER.md). Browser cookie/CSRF auth, guarded retention, reconciliation, Docker/local Compose, OpenAPI3.1, Postman and generated TypeScript contracts are covered in Batch4. See [deployment](docs/DEPLOYMENT_RUNBOOK.md) and [verified quality evidence](docs/TEST_AND_QUALITY_REPORT.md). No government certification, production approval or national-scale claim is made.

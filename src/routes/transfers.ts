@@ -1,3 +1,4 @@
+import { createRateLimiter } from '../utils/rate-limit';
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
@@ -9,7 +10,7 @@ import { allocationContext, enrolmentAccess, createEnrolment, changeAdmission, f
 import { audit } from '../services/student';
 import { AppError } from '../utils/app-error';
 export const transferRouter = Router();
-transferRouter.use(authenticate);
+transferRouter.use(authenticate, createRateLimiter('transferRouter', { windowMs: 60000, limit: 60, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 transferRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid transfer reference')));
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 async function access(user: any, id: string) {

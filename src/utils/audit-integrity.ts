@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { requestContext } from './request-context';
+import { activeBinaryKey, binaryKeyring } from '../security/keys';
 import { AppError } from './app-error';
 const signedFields = ['_id', 'actor', 'actorRole', 'institution', 'action', 'resourceType', 'resourceId', 'occurredAt', 'outcome', 'reasonCode', 'correlationId', 'integrityKeyVersion'];
 export function auditCanonical(event: any) {
@@ -10,8 +11,8 @@ export function auditCanonical(event: any) {
  }));
 }
 function signingKey() {
- const raw = process.env.AUDIT_HMAC_KEY; if (!raw) return null;
- const key = Buffer.from(raw, 'base64'); if (key.length !== 32 || !process.env.AUDIT_KEY_VERSION) throw new AppError(503, 'AUDIT_KEY_INVALID', 'Audit signing configuration is invalid'); return key;
+ if (!process.env.AUDIT_HMAC_KEY && !process.env.AUDIT_KEYRING_JSON) return null;
+ return activeBinaryKey('AUDIT');
 }
 export function configureAudit(schema: Schema) {
  schema.add({ actorRole: String, occurredAt: { type: Date, default: Date.now }, outcome: { type: String, enum: ['SUCCESS', 'DENIED', 'FAILED'], default: 'SUCCESS' }, reasonCode: String, correlationId: String, integrityVersion: String, integrityKeyVersion: String, integrityTag: { type: String, select: false } });
@@ -23,14 +24,14 @@ export function configureAudit(schema: Schema) {
   this.correlationId = context?.correlationId ?? randomUUID();
   if (String(this.action).startsWith('ADMISSION_REJECTED_')) this.outcome = 'DENIED';
   const key = signingKey();
-  if (key) { this.integrityVersion = 'HMAC_SHA256_EVENT_V1'; this.integrityKeyVersion = process.env.AUDIT_KEY_VERSION; this.integrityTag = createHmac('sha256', key).update(auditCanonical(this)).digest('hex'); }
+  if (key) { this.integrityVersion = 'HMAC_SHA256_EVENT_V1'; this.integrityKeyVersion = key.version; this.integrityTag = createHmac('sha256', key.key).update(auditCanonical(this)).digest('hex'); }
   else this.integrityVersion = 'UNSIGNED';
  });
 }
 export function verifyAuditSignature(event: any): 'VALID' | 'INVALID' | 'UNSIGNED' | 'KEY_UNAVAILABLE' {
  if (event.integrityVersion !== 'HMAC_SHA256_EVENT_V1') return 'UNSIGNED';
  if (!event.integrityTag) return 'INVALID';
- const key = signingKey(); if (!key || event.integrityKeyVersion !== process.env.AUDIT_KEY_VERSION) return 'KEY_UNAVAILABLE';
+ const key = binaryKeyring('AUDIT')[String(event.integrityKeyVersion)]; if (!key) return 'KEY_UNAVAILABLE';
  const expected = createHmac('sha256', key).update(auditCanonical(event)).digest(); const actual = Buffer.from(event.integrityTag, 'hex');
  return actual.length === expected.length && timingSafeEqual(actual, expected) ? 'VALID' : 'INVALID';
 }

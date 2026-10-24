@@ -77,4 +77,4 @@ Malformed inputs: 422 VALIDATION_ERROR; excessive lifetime: 422 LIFETIME_EXCEEDE
 
 ## Trust and remaining work
 
-The trust root is existing account linkage and institution submissions, not official APAAR access. Legal-basis/privacy notices, employer onboarding proof, MFA, production cookie/BFF transport, distributed abuse controls and retention policy remain deployment prerequisites. Do not log invitations, QR tokens, authorization headers or actual claim payloads. Audit/VerificationEvent store actor/claim-type/outcome metadata, not the claims themselves.
+The trust root is existing account linkage and institution submissions, not official APAAR access. Legal-basis/privacy notices, employer onboarding proof, MFA, distributed abuse controls and an approved production retention policy remain deployment prerequisites. Batch 4 implements explicit browser cookie/CSRF transport and guarded synthetic retention; see SECURITY_HARDENING.md and DATA_RETENTION_POLICY.md. Do not log invitations, QR tokens, authorization headers or actual claim payloads. Audit/VerificationEvent store actor/claim-type/outcome metadata, not the claims themselves.

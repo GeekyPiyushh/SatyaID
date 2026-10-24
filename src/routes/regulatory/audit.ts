@@ -1,3 +1,4 @@
+import { createRateLimiter } from '../../utils/rate-limit';
 import { Router } from 'express';
 import { z } from 'zod';
 import { authenticate, requireRoles, institutionScope } from '../../middlewares/auth';
@@ -7,7 +8,7 @@ import { AuditEvent } from '../../models';
 import { verifyAuditSignature } from '../../utils/audit-integrity';
 import { AppError } from '../../utils/app-error';
 export const auditRouter = Router();
-auditRouter.use(authenticate);
+auditRouter.use(authenticate, createRateLimiter('auditRouter', { windowMs: 60000, limit: 60, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 const filters = z.object({ institution: objectId.optional(), from: day.optional(), to: day.optional(), ...pagination }).strict().refine(v => !v.from || !v.to || v.from <= v.to);
 async function scope(user: any, v: any) {
  if (user.role !== 'AICTE_ADMIN') { if (user.role !== 'INSTITUTION_ADMIN' || !v.institution) throw new AppError(403, 'FORBIDDEN', 'Scoped institution administrator access required'); await institutionScope(user, v.institution, true); }

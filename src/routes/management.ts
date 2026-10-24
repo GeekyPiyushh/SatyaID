@@ -1,3 +1,4 @@
+import { createRateLimiter } from '../utils/rate-limit';
 import { Router } from 'express';
 import { z } from 'zod';
 import { authenticate, requireRoles, institutionScope } from '../middlewares/auth';
@@ -6,7 +7,7 @@ import * as m from '../models';
 import { auditedWrite, exists, scopeOffering, capacity } from '../services/management';
 import { AppError } from '../utils/app-error';
 export const managementRouter = Router();
-managementRouter.use(authenticate);
+managementRouter.use(authenticate, createRateLimiter('managementRouter', { windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 const admin = requireRoles('AICTE_ADMIN');
 const id = z.string().regex(/^[a-f\d]{24}$/i);
 const text = z.string().trim().min(1).max(200);
@@ -36,7 +37,7 @@ for (const [path, model, schema] of masters) {
 }
 managementRouter.post('/offerings', admin, validate(z.object({ institution: id, program: id }).strict()), async (_req, res) => { const v = res.locals.validated; await exists(m.Institution, v.institution); await exists(m.Program, v.program); res.status(201); reply(res, await auditedWrite(m.InstitutionProgram, v, res.locals.user)); });
 managementRouter.get('/institutions/:id/offerings', async (req, res) => { await institutionScope(res.locals.user, String(req.params.id)); reply(res, await m.InstitutionProgram.find({ institution: req.params.id }).limit(100)); });
-managementRouter.post('/institutions/:id/memberships', validate(z.object({ user: id, role: z.enum(['INSTITUTION_ADMIN', 'INSTITUTION_STAFF']), active: z.boolean().default(true) }).strict()), async (req, res) => { await institutionScope(res.locals.user, String(req.params.id), true); if (res.locals.user.role !== 'AICTE_ADMIN' && res.locals.validated.role !== 'INSTITUTION_STAFF') throw new AppError(403, 'FORBIDDEN', 'Only AICTE can appoint institution administrators'); await exists(m.User, res.locals.validated.user); res.status(201); reply(res, await auditedWrite(m.InstitutionMembership, { ...res.locals.validated, institution: req.params.id }, res.locals.user)); });
+managementRouter.post('/institutions/:id/memberships', validate(z.object({ user: id, role: z.enum(['INSTITUTION_ADMIN', 'INSTITUTION_STAFF']), active: z.boolean().default(true) }).strict()), async (req, res) => { await institutionScope(res.locals.user, String(req.params.id), true); if (res.locals.user.role !== 'AICTE_ADMIN' && res.locals.validated.role !== 'INSTITUTION_STAFF') throw new AppError(403, 'FORBIDDEN', 'Only AICTE can appoint institution administrators'); if (!await m.User.exists({ _id: res.locals.validated.user, role: res.locals.validated.role, active: true })) throw new AppError(422, 'INVALID_MEMBERSHIP_ACCOUNT', 'Active account with matching institution role required'); res.status(201); reply(res, await auditedWrite(m.InstitutionMembership, { ...res.locals.validated, institution: req.params.id }, res.locals.user)); });
 managementRouter.patch('/institutions/:id/memberships/:membershipId', admin, validate(z.object({ active: z.boolean() }).strict()), async (req, res) => { if (!id.safeParse(req.params.membershipId).success) throw new AppError(422, 'VALIDATION_ERROR', 'Invalid membership identifier'); const record = await m.InstitutionMembership.findOne({ _id: req.params.membershipId, institution: req.params.id }); if (!record) throw new AppError(404, 'NOT_FOUND', 'Membership not found'); reply(res, await auditedWrite(m.InstitutionMembership, res.locals.validated, res.locals.user, String(record._id))); });
 const allocation = z.object({ offering: id, academicYear: id, category: id, kind: z.enum(['BASE', 'SUPERNUMERARY']), approvedSeats: z.number().int().min(0).max(1000000), sourceReference: text }).strict();
 managementRouter.post('/intakes', admin, validate(allocation), async (_req, res) => { const v = res.locals.validated; await exists(m.InstitutionProgram, v.offering); await exists(m.AcademicYear, v.academicYear); await exists(m.SeatCategory, v.category); res.status(201); reply(res, await auditedWrite(m.IntakeAllocation, v, res.locals.user)); });

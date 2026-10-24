@@ -111,3 +111,8 @@ See [APAAR_MOCK_VERIFICATION.md](APAAR_MOCK_VERIFICATION.md). The verification e
 - [INTELLIGENCE_FEATURES.md](INTELLIGENCE_FEATURES.md): evidence-based anomalies, operational quality scorecards and read-only HYPOTHETICAL policy simulations.
 
 All preserve the existing version prefix, strict schemas, JWT/RBAC and success/error envelope. Responses expose a generated X-Request-ID header (also exposed through CORS); no secret/token header is copied into it. No frontend, official identity integration, completion/degree verification, PDF exporter or final frontend master contract is implied.
+
+
+## Batch 4 final integration update
+
+The authoritative complete 98-operation contract is now [openapi.yaml](openapi.yaml), validated OpenAPI3.1, with [frontend master](../FRONTEND_INTEGRATION_MASTER.md) section3. Explicit browser routes `/api/v1/auth/browser/{csrf,login,refresh,logout}` supplement JSON-only non-browser auth. Regenerate with `npm run api:generate`; parity check `npm run api:check`. Downloads return raw JSON/CSV. Earlier examples remain feature-specific summaries.

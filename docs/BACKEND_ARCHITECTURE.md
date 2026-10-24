@@ -46,3 +46,8 @@ The existing worker fairly attempts one upload and one report per poll, preservi
 `utils/request-context.ts` generates X-Request-ID. `utils/audit-integrity.ts` captures audit metadata and optional per-event HMAC signing for all ordinary AuditEvent creates. This is not a chain and cannot guarantee deletion/order integrity. Versioned keys stay outside source control; legacy unsigned events are not certified. See REGULATORY_REPORTING.md for the exact guarantee.
 
 All three intelligence features are read-only. Policy simulation does not even insert audit events, to preserve its no-database-mutation contract. Scores/alerts use observed evidence and published formulas; they are not fraud predictions or official ratings. Production hardening, keyring/retention controls and national-scale performance remain separate requirements.
+
+
+## Batch 4 final integration update
+
+Batch4 adds a replaceable limiter store factory, validated historic keyrings, explicit browser transport, payload-only operations services, bounded snapshot reconciliation, compiled combined worker/index CLI and source-introspected API contracts. Live analytics remain independent queries; reports/reconciliation use snapshot transactions. There is no Redis, external broker or mandatory ML. See [BATCH4_IMPLEMENTATION](BATCH4_IMPLEMENTATION.md).

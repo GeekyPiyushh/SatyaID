@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { rateLimit } from 'express-rate-limit';
+import { createRateLimiter } from '../../utils/rate-limit';
 import { authenticate, requireRoles } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
 import { objectId, day } from '../../validators/batch2';
 import { governanceData, anomalyAlerts, simulatePolicy } from '../../services/regulatory/intelligence';
 import { AppError } from '../../utils/app-error';
 export const intelligenceRouter = Router();
-intelligenceRouter.use(authenticate, rateLimit({ windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Intelligence request limit reached' } }); } }));
+intelligenceRouter.use(authenticate, createRateLimiter('intelligence.1', { windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Intelligence request limit reached' } }); } }));
 intelligenceRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid institution reference')));
 const range = { academicYear: objectId, from: day.optional(), to: day.optional() };
 const validRange = (v: any) => !v.from || !v.to || new Date(v.to).getTime() >= new Date(v.from).getTime() && new Date(v.to).getTime() - new Date(v.from).getTime() <= 366 * 86400000;

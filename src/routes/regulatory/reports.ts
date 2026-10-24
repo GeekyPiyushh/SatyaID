@@ -1,3 +1,4 @@
+import { createRateLimiter } from '../../utils/rate-limit';
 import { Router } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../../middlewares/auth';
@@ -9,7 +10,7 @@ import { reportTypes, createReport, reportAccess, reportScope, downloadReport } 
 import { prevalidate } from '../../services/regulatory/compliance';
 import { AppError } from '../../utils/app-error';
 export const reportRouter = Router();
-reportRouter.use(authenticate);
+reportRouter.use(authenticate, createRateLimiter('reportRouter', { windowMs: 60000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 reportRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(404, 'REPORT_UNAVAILABLE', 'Report is unavailable')));
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 reportRouter.post('/', validate(z.object({ reportType: z.enum(reportTypes), format: z.enum(['JSON', 'CSV']), filters: analyticsFilters }).strict()), async (_req, res) => { res.status(202); reply(res, await createReport(res.locals.user, res.locals.validated)); });

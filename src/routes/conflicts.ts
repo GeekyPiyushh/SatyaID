@@ -1,3 +1,4 @@
+import { createRateLimiter } from '../utils/rate-limit';
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
@@ -9,7 +10,7 @@ import { conflictAccess, conflictFilter, conflictView } from '../services/confli
 import { audit } from '../services/student';
 import { AppError } from '../utils/app-error';
 export const conflictRouter = Router();
-conflictRouter.use(authenticate);
+conflictRouter.use(authenticate, createRateLimiter('conflictRouter', { windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 conflictRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid conflict reference')));
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 const statuses = z.enum(['OPEN', 'UNDER_REVIEW', 'AWAITING_EVIDENCE', 'RESOLVED', 'DISMISSED', 'ESCALATED']);

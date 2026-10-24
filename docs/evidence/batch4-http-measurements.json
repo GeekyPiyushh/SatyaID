@@ -1,0 +1,219 @@
+{
+  "tool": "Vitest + Supertest performance.now",
+  "node": "v24.19.0",
+  "dataset": "One workflow: 2 institutions, 4 unique students, 5 admission drafts, 4 successful activations; last-seat concurrency 2; all other requests sequential",
+  "samples": [
+    {
+      "operation": "POST /institutions",
+      "milliseconds": 74.69
+    },
+    {
+      "operation": "POST /academic-years",
+      "milliseconds": 17.07
+    },
+    {
+      "operation": "POST /programs",
+      "milliseconds": 15.9
+    },
+    {
+      "operation": "POST /offerings",
+      "milliseconds": 22.68
+    },
+    {
+      "operation": "POST /seat-categories",
+      "milliseconds": 43.91
+    },
+    {
+      "operation": "POST /intakes",
+      "milliseconds": 25.62
+    },
+    {
+      "operation": "POST /institutions/{id}/memberships",
+      "milliseconds": 15.65
+    },
+    {
+      "operation": "POST /institutions/{id}/memberships",
+      "milliseconds": 6.58
+    },
+    {
+      "operation": "GET /institutions/{id}",
+      "milliseconds": 5.05
+    },
+    {
+      "operation": "POST /students",
+      "milliseconds": 17.75
+    },
+    {
+      "operation": "POST /enrolments",
+      "milliseconds": 37.4
+    },
+    {
+      "operation": "POST /enrolments/{id}/activate",
+      "milliseconds": 44.07
+    },
+    {
+      "operation": "GET /analytics/institutions/{id}/overview?academicYear={id}",
+      "milliseconds": 23.57
+    },
+    {
+      "operation": "GET /students?institution={id}&limit=10",
+      "milliseconds": 17.29
+    },
+    {
+      "operation": "Bulk validation 1 row (queue + worker)",
+      "milliseconds": 70.15
+    },
+    {
+      "operation": "GET /uploads/{id}/results",
+      "milliseconds": 13.49
+    },
+    {
+      "operation": "POST /uploads/{id}/commit",
+      "milliseconds": 24.4
+    },
+    {
+      "operation": "POST /uploads/{id}/commit",
+      "milliseconds": 12.3
+    },
+    {
+      "operation": "GET /uploads/{id}",
+      "milliseconds": 10.73
+    },
+    {
+      "operation": "POST /institutions",
+      "milliseconds": 13.56
+    },
+    {
+      "operation": "POST /offerings",
+      "milliseconds": 9.58
+    },
+    {
+      "operation": "POST /intakes",
+      "milliseconds": 14.08
+    },
+    {
+      "operation": "POST /students",
+      "milliseconds": 9.8
+    },
+    {
+      "operation": "POST /enrolments",
+      "milliseconds": 25.57
+    },
+    {
+      "operation": "POST /enrolments/{id}/activate",
+      "milliseconds": 41.09
+    },
+    {
+      "operation": "GET /conflicts",
+      "milliseconds": 7.55
+    },
+    {
+      "operation": "POST /conflicts/{id}/resolve",
+      "milliseconds": 19.57
+    },
+    {
+      "operation": "GET /analytics/conflicts/summary?institution={id}",
+      "milliseconds": 19.93
+    },
+    {
+      "operation": "GET /students/{id}?institution={id}",
+      "milliseconds": 5.72
+    },
+    {
+      "operation": "POST /students/{id}/account-link",
+      "milliseconds": 15.47
+    },
+    {
+      "operation": "POST /verification/employers",
+      "milliseconds": 15.5
+    },
+    {
+      "operation": "POST /verification/employers",
+      "milliseconds": 15.17
+    },
+    {
+      "operation": "POST /verification/invitations",
+      "milliseconds": 50.1
+    },
+    {
+      "operation": "POST /verification/requests",
+      "milliseconds": 30.82
+    },
+    {
+      "operation": "POST /consents/{id}/approve",
+      "milliseconds": 26.39
+    },
+    {
+      "operation": "GET /verification/requests/{id}/result",
+      "milliseconds": 35.36
+    },
+    {
+      "operation": "POST /credentials",
+      "milliseconds": 24.93
+    },
+    {
+      "operation": "POST /credentials/verify",
+      "milliseconds": 15.41
+    },
+    {
+      "operation": "POST /credentials/verify",
+      "milliseconds": 32.59
+    },
+    {
+      "operation": "GET /verification/requests/{id}/result",
+      "milliseconds": 21.15
+    },
+    {
+      "operation": "POST /credentials/verify",
+      "milliseconds": 13.73
+    },
+    {
+      "operation": "GET /verification/requests/{id}/result",
+      "milliseconds": 6.15
+    },
+    {
+      "operation": "POST /consents/{id}/revoke",
+      "milliseconds": 21.64
+    },
+    {
+      "operation": "POST /credentials/verify",
+      "milliseconds": 13.75
+    },
+    {
+      "operation": "POST /reports",
+      "milliseconds": 15.74
+    },
+    {
+      "operation": "Regulatory snapshot report generation and download",
+      "milliseconds": 48.09
+    },
+    {
+      "operation": "GET /reports/{id}",
+      "milliseconds": 4.53
+    },
+    {
+      "operation": "POST /intelligence/policy-simulations",
+      "milliseconds": 8.97
+    },
+    {
+      "operation": "POST /students",
+      "milliseconds": 12.75
+    },
+    {
+      "operation": "POST /enrolments",
+      "milliseconds": 33.08
+    },
+    {
+      "operation": "POST /students",
+      "milliseconds": 17.58
+    },
+    {
+      "operation": "POST /enrolments",
+      "milliseconds": 36.71
+    },
+    {
+      "operation": "Last-seat activation concurrency 2",
+      "milliseconds": 72.56
+    }
+  ]
+}

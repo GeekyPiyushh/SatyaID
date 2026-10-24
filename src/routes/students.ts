@@ -1,4 +1,4 @@
-import { rateLimit } from 'express-rate-limit';
+import { createRateLimiter } from '../utils/rate-limit';
 import { verifyStudentIdentity } from '../services/verification';
 import { Router } from 'express';
 import mongoose from 'mongoose';
@@ -10,7 +10,7 @@ import * as service from '../services/student';
 import { createStudentSchema, updateStudentSchema, pagination, objectId, apaar } from '../validators/batch2';
 import { AppError } from '../utils/app-error';
 export const studentRouter = Router();
-studentRouter.use(authenticate, rateLimit({ windowMs: 60000, limit: 120, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
+studentRouter.use(authenticate, createRateLimiter('students.1', { windowMs: 60000, limit: 120, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Request limit reached' } }); } }));
 studentRouter.param('id', (_req, _res, next, value) => objectId.safeParse(value).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid student reference')));
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
 studentRouter.post('/', validate(createStudentSchema), async (_req, res) => { res.status(201); reply(res, await service.createStudent(res.locals.user, res.locals.validated)); });
@@ -49,4 +49,4 @@ studentRouter.post('/:id/account-link', requireRoles('AICTE_ADMIN'), validate(z.
  }); reply(res, result);
 });
 
-studentRouter.post('/:id/verify-apaar', rateLimit({ windowMs: 60000, limit: 10, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Verification limit reached' } }); } }), validate(z.object({ institution: objectId }).strict()), async (req, res) => reply(res, await verifyStudentIdentity(res.locals.user, String(req.params.id), res.locals.validated.institution)));
+studentRouter.post('/:id/verify-apaar', createRateLimiter('students.2', { windowMs: 60000, limit: 10, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Verification limit reached' } }); } }), validate(z.object({ institution: objectId }).strict()), async (req, res) => reply(res, await verifyStudentIdentity(res.locals.user, String(req.params.id), res.locals.validated.institution)));

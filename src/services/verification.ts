@@ -12,7 +12,7 @@ export async function verifyStudentIdentity(user: any, id: string, institution: 
  if (!provider) throw new AppError(503, 'PROVIDER_UNAVAILABLE', 'No authorized verification provider is configured');
  const vault = await m.ApaarIdentityVault.findOne({ student: id }).select('+ciphertext +nonce +tag');
  if (!vault) throw new AppError(409, 'IDENTITY_NOT_LINKED', 'Student has no linked identity');
- const keys = identityKeys(); if (vault.keyVersion !== keys.version) throw new AppError(503, 'IDENTITY_KEY_VERSION_UNAVAILABLE', 'Required identity key version is unavailable');
+ const keys = identityKeys(String(vault.keyVersion));
  let identifier: string;
  try { identifier = revealIdentity({ ciphertext: Buffer.from(vault.ciphertext as any), nonce: Buffer.from(vault.nonce as any), tag: Buffer.from(vault.tag as any) }, id, keys.encryption); }
  catch { throw new AppError(503, 'IDENTITY_DECRYPTION_FAILED', 'Protected identity could not be accessed'); }

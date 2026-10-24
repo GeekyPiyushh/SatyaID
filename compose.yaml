@@ -1,0 +1,67 @@
+# Development only: unauthenticated MongoDB on an isolated network, no host DB port.
+# Set independent random keys in your shell or ignored .env before docker compose up.
+services:
+  mongo:
+    image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes: ["mongo-dev:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ping:1}).ok ? quit(0) : quit(1)"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  replica-init:
+    image: mongo:8
+    depends_on:
+      mongo: {condition: service_healthy}
+    restart: "no"
+    entrypoint: ["mongosh", "--host", "mongo:27017", "--quiet", "--eval"]
+    command: ["try { rs.status() } catch(e) { if(e.codeName === 'NotYetInitialized') rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}); else throw e; } for(let i=0;i<60;i++){if(db.hello().isWritablePrimary) quit(0); sleep(1000)} quit(1)"]
+  indexes:
+    build: .
+    depends_on:
+      replica-init: {condition: service_completed_successfully}
+    environment: &app-env
+      NODE_ENV: development
+      MONGODB_URI: mongodb://mongo:27017/satyaid_local_demo?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:?Generate an independent random JWT_SECRET}
+      CSRF_SECRET: ${CSRF_SECRET:?Generate an independent random CSRF_SECRET}
+      UPLOAD_ENCRYPTION_KEY: ${UPLOAD_ENCRYPTION_KEY:?Generate a base64 32-byte key}
+      APAAR_ENCRYPTION_KEY: ${APAAR_ENCRYPTION_KEY:?Generate a base64 32-byte key}
+      APAAR_LOOKUP_KEY: ${APAAR_LOOKUP_KEY:?Generate a different base64 32-byte key}
+      APAAR_KEY_VERSION: local-v1
+      CORS_ORIGINS: http://localhost:5173
+      COOKIE_SECURE: "false"
+    command: ["node", "dist/cli/indexes.js"]
+    restart: "no"
+  api:
+    build: .
+    depends_on:
+      indexes: {condition: service_completed_successfully}
+    environment: *app-env
+    ports: ["127.0.0.1:${API_PORT:-3000}:3000"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    init: true
+    stop_grace_period: 15s
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  worker:
+    build: .
+    depends_on:
+      indexes: {condition: service_completed_successfully}
+    environment: *app-env
+    command: ["node", "dist/worker.js"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    init: true
+    stop_grace_period: 30s
+volumes:
+  mongo-dev:

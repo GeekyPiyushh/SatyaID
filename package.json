@@ -17,10 +17,21 @@
     "db:seed": "tsx scripts/seed.ts",
     "worker": "tsx scripts/upload-worker.ts",
     "demo:samples": "tsx scripts/demo-samples.ts",
-    "db:seed:governance": "tsx scripts/seed-governance.ts"
+    "db:seed:governance": "tsx scripts/seed-governance.ts",
+    "retention": "tsx src/cli/retention.ts",
+    "reconcile": "tsx src/cli/reconcile.ts",
+    "worker:start": "node dist/worker.js",
+    "api:generate": "tsx scripts/generate-api.ts && openapi-typescript docs/openapi.yaml -o shared/api-types.ts",
+    "api:check": "vitest run tests/api-contract.test.ts",
+    "test:workflow": "vitest run tests/batch4-e2e.test.ts tests/browser-auth.test.ts",
+    "compose:smoke": "python3 scripts/local-compose-smoke.py",
+    "recovery:smoke": "tsx scripts/recovery-smoke.ts",
+    "seed:check": "tsx scripts/seed-repeatability.ts",
+    "test:performance": "vitest run tests/batch4-e2e.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cookie": "^1.1.1",
     "cors": "^2.8.6",
     "csv-parse": "^7.0.3",
     "decimal.js": "^10.6.0",
@@ -37,6 +48,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^13.1.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -44,10 +56,14 @@
     "@types/node": "^24.19.2",
     "@types/supertest": "^7.2.1",
     "@types/yauzl": "^3.4.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "openapi-typescript": "^7.13.0",
     "supertest": "^7.3.1",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "yaml": "^2.9.1"
   },
   "overrides": {
     "exceljs": {

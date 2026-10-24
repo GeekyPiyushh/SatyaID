@@ -33,3 +33,8 @@ Student/enrolment APIs: 120 requests/minute/IP; upload APIs: 60/minute/IP; mock 
 Consent/credential routers use in-memory 60/minute/IP limits. Invitation/request/consent/reference expiry is checked in queries, never delegated to delayed TTL deletion. Tokens are high entropy and digest-only at rest. Repeated references remain valid only within current scope/expiry; each disclosure is logged. Disabled/unlinked student accounts and suspended employers fail closed. Revoke cannot retract data already downloaded.
 
 Existing access-token transport and MFA/password-reset/invitation/production browser-session limitations remain. The new subject-sharing invitation is not a general user-registration invitation or identity proof. The optional audit HMAC key must be independent of JWT, identity and upload keys. Logs/events must never contain raw bearer tokens, vault keys or actual disclosed claim payloads.
+
+
+## Batch 4 final integration update
+
+Batch4 browser sessions use explicit `/auth/browser/*` routes, HttpOnly refresh cookies, exact Origin checks and signed CSRF nonces. JSON auth rejects browser transport. Family deadline7 days, access600sec; logout revokes refresh but existing JWTs expire naturally. Institution scope requires the correct account role plus active membership. See [SECURITY_HARDENING](SECURITY_HARDENING.md) and frontend master section4 for complete contract/migration.
