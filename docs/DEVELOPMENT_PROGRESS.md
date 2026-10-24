@@ -1,41 +1,37 @@
-# Development progress — Batch 2
+# Development progress — Batch 3
 
 ## IMPLEMENTED
 
-Batch 1 remains operational: MongoDB/Mongoose, Express security/validation, login/refresh/logout, institution/program/year management, approved allocations/quota rules, audits, health/readiness, build and guarded seed.
+Batch 1/2 functionality remains intact: JWT/refresh authentication, membership and academic configuration, encrypted identity vault, scoped student profiles, transaction-safe admissions and transfers, persisted CSV/XLSX uploads/recovery, conflict investigations and explicit mock APAAR verification.
 
-Batch 2 adds:
+Batch 3 adds:
 
-- Phase 06: canonical identity versus institution-owned student profiles, scoped CRUD/soft deactivation, exact roll search, regulator-only account/association linking, AES-GCM/HMAC vault linkage and audited reads.
-- Phase 07: idempotent submissions, explicit transitions, atomic seat reservations/withdrawal, effective approved quota ceilings, history, concurrency-safe activation and reviewed transactional transfers.
-- Phase 07B: CSV/XLSX upload previews, encrypted persisted staging, leased worker, explicit confirm/commit, row transactions, partial acceptance, idempotency, retries and redacted reports.
-- Phase 08: deterministic overlap/potential-transfer cases, redacted institutional visibility, scoped evidence metadata, regulator assignment/resolution and append-only application history.
-- Phase 09: typed mock provider registry, deterministic synthetic outcomes, verification event/trace metadata and audit. Official verification is NOT implemented.
+- Phase 10: scoped MongoDB aggregate analytics, registered-data overview, bounded trends/utilization, independent enrolment/student/reservation/counter denominators and source/filter notes.
+- Phase 11: controlled employer authorization, one-time student-issued subject/employer-bound invitations, explicit claim-specific student consent, expiry/revocation/history, current selective disclosure, digest-only opaque credential references and access audit events.
+- Phase 12: persisted JSON/CSV readiness reports, bounded snapshot generation in the combined worker, provenance/digests/scoped downloads, explainable compliance prevalidation, actor/role/outcome/correlation audit metadata, and optional per-event HMAC integrity checks.
+- Phase 13: evidence-based deterministic anomaly alerts, explicit-weight operational quality scores with insufficient-data handling, and read-only HYPOTHETICAL decimal policy simulation.
 
-## Verification evidence
+## Actual validation
 
-| Checkpoint | Actual result |
+| Boundary | Result |
 |---|---|
-| Baseline | 26 tests passed against MongoDB replica set; build passed |
-| A | 30 tests passed; typecheck/build passed |
-| B | 34 tests passed; concurrent last-seat, repeated activation/withdrawal and separate pools verified |
-| C | 38 tests passed; CSV/XLSX, partial commit, retries and limits verified |
-| D | 40 tests passed; overlap, redaction and resolution history verified |
-| E | 42 tests passed; all mock outcomes and no official status verified |
-| Reviewed transfer and seed extension | 43 tests passed; repeat approval and source/target counters verified |
-| Recovery/security additions | 48 tests passed; worker lease recovery, Excel commit, account isolation and error exports verified |
-| Quota/transfer rollback/hostile spreadsheet checks | 51 tests passed; typecheck/build passed |
+| Baseline Batches 1/2 | 51 passed; typecheck/build passed |
+| Phase 10 | 54 passed; typecheck/build passed |
+| Phase 11 | 59 passed; typecheck/build passed |
+| Phase 12 | 64 passed; typecheck/build passed |
+| Phase 13 | 70 passed after correcting a cross-suite test-count assertion; typecheck/build passed |
+| Expiry/account-state regression | 72 passed: 21 independent + 51 replica-set integration, zero skipped |
 
-All integration checks used isolated MongoDB 8 replica-set databases; no production credentials or real identities. Tests are explicitly skipped without TEST_MONGODB_URI. Test-owned encrypted vault fixtures are cleaned up by their unique key version; no database is dropped. Demo seed was run twice successfully and CSV/XLSX sample generation passed. Dependency audit reports zero vulnerabilities after a compatible ExcelJS uuid override, tested through spreadsheet read/write. Final clean-install and runtime smoke evidence is recorded in BATCH2_IMPLEMENTATION.md.
+The integration suites require TEST_MONGODB_URI referencing an isolated `_test` replica-set database. Without it, database tests are explicitly skipped, not passed. No real student information or official identities are used. The guarded base/governance seed ran, governance seed repeated successfully, and npm audit reported zero vulnerabilities. Final clean-install/live API/combined-worker results are recorded in BATCH3_IMPLEMENTATION.md after execution.
 
 ## MOCKED
 
-MOCK_APAAR only. Synthetic fixture values are not officially reserved IDs. No HTTP calls to identity/government systems and no officially verified seed data. Production refuses the mock adapter.
+Only the existing MOCK_APAAR provider. Academic-claim sharing/reporting use actual synthetic development database records, not misleading mock service replacements. No government API/partnership/authorization is claimed. Demo employer approval is explicitly application-local and fictional.
 
 ## PLANNED / limitations
 
-Official provider authorization and privacy/legal-basis review; keyring rotation; automated encrypted staging retention/cleanup; production hostile-document sandbox/malware scanning; protected evidence storage; browser BFF/HttpOnly-cookie hardening; MFA/invitations/reset; distributed rate limiting; completion/graduation; historical ACCEPTED/counter reconciliation; production backup/restore/load validation. Some legacy histories/master lists cap at 100. No analytics dashboards, employer verification workflow, AI or frontend.
+Official provider authorization; completion/graduation; legal/privacy/employer-proof onboarding; production cookie/BFF/MFA/distributed abuse controls; keyring rotation and independent audit checkpoints; staging/report retention/deletion; protected evidence storage; national-scale load/recovery validation. PDF and QR image rendering are not implemented (online QR-compatible reference strings are). No frontend, blockchain or mandatory AI/ML. No final frontend integration master file is generated yet.
 
-## BLOCKED
+## Git / blockers
 
-No external prerequisite blocked the local implementation/tests. Production use and official integration remain unavailable pending the above permissions, infrastructure and review. Changes are local/uncommitted on `work`; no push, PR or merge was performed.
+No external prerequisite blocked local synthetic development validation. Batch 3 was implemented on feature/satyaid-backend-batch-3, based on preserved commit ddb2704149260c3823e200008901f6866668f1f6. Subsequent preservation commits and PR state are tracked in Git/GitHub; the coding task did not merge changes. Earlier GitHub main/API-access blockers were not modified by this coding task.

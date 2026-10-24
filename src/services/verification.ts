@@ -24,7 +24,7 @@ export async function verifyStudentIdentity(user: any, id: string, institution: 
   const student = await m.Student.findOneAndUpdate({ _id: id }, update, { session, returnDocument: 'after' });
   if (!student) throw new AppError(404, 'NOT_FOUND', 'Student not found');
   const traceId = randomUUID();
-  await m.IdentityVerificationEvent.create([{ student: id, actor: user._id, status, provider: result.provider, providerVersion: result.providerVersion, reasonCode: result.outcome, traceId, keyVersion: vault.keyVersion }], { session });
+  await m.IdentityVerificationEvent.create([{ student: id, institution, actor: user._id, status, provider: result.provider, providerVersion: result.providerVersion, reasonCode: result.outcome, traceId, keyVersion: vault.keyVersion }], { session });
   await audit(user, 'MOCK_IDENTITY_VERIFICATION', 'Student', id, session, institution);
   return { verificationStatus: student.identityStatus, outcome: result.outcome, provider: result.provider, providerVersion: result.providerVersion, official: false, traceId };
  });

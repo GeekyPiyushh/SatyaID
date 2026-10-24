@@ -21,7 +21,10 @@ export async function auditedWrite(model: Model<any>, data: any, user: any, id?:
 
  if (id) { result = await model.findOneAndUpdate({ _id: id, ...(data.version !== undefined ? { version: data.version, occupiedSeats: { $lte: data.approvedSeats } } : {}) }, { $set: Object.fromEntries(Object.entries(data).filter(([key]) => key !== 'version')), ...(data.version !== undefined ? { $inc: { version: 1 } } : {}) }, { returnDocument: 'after', runValidators: true, session }); if (!result) throw new AppError(409, 'WRITE_CONFLICT', 'Record changed or does not exist'); }
  else { [result] = await model.create([data], { session }); }
- await AuditEvent.create([{ actor: user._id, action: id ? 'UPDATE' : 'CREATE', resourceType: model.modelName, resourceId: result!._id, institution: data.institution }], { session });
+ let auditInstitution = data.institution ?? result?.institution;
+ if (model.modelName === 'Institution') auditInstitution = result!._id;
+ if (['IntakeAllocation', 'QuotaRule'].includes(model.modelName) && result?.offering) auditInstitution = (await InstitutionProgram.findById(result.offering).select('institution').session(session))?.institution;
+ await AuditEvent.create([{ actor: user._id, action: id ? 'UPDATE' : 'CREATE', resourceType: model.modelName, resourceId: result!._id, institution: auditInstitution }], { session });
  return result;
  });
 }

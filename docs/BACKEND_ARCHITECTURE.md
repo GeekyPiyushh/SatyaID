@@ -34,3 +34,15 @@ Bulk staging uses encrypted persisted MongoDB documents, not an in-memory queue.
 Deterministic conflict detection runs inside activation while holding the student lock, preventing two concurrent same-student activations from missing each other. It compares active records across institutions and inclusive date intersections. Transfer-entry records produce a potential-transfer explanation code. Rules create review cases, not fraud judgments. No ML or universal single-active-enrolment constraint exists.
 
 Verification decrypts only inside a scoped backend service and records provider/version/trace/outcome metadata. Only MOCK_APAAR is registered. The official-provider trust boundary and future integration steps are documented, not implemented.
+
+## Batch 3 — current regulatory and sharing services
+
+`routes/regulatory/` and `services/regulatory/` add scoped aggregate analytics, controlled consent/disclosure, opaque credential references, persisted reports/prevalidation, and deterministic intelligence. Existing admission/transfer/vault/upload services remain the source of truth. `models/batch3.ts` introduces only distinct workflow collections; existing consent/employer/request placeholders are expanded rather than duplicated.
+
+Consent authorization and actual disclosure events commit together; grant updates serialize disclosure against revocation. A credential is a scoped online share reference, not an offline signed degree or government-issued record. All source/expiry/revocation checks recur for each authenticated intended-verifier request.
+
+The existing worker fairly attempts one upload and one report per poll, preserving upload processing. Source reads for reports are sequential within a MongoDB snapshot transaction; live dashboard/intelligence responses deliberately do not claim one snapshot. Report detail cap is 500 and query limits are explicit. No Redis/new database/microservice was introduced.
+
+`utils/request-context.ts` generates X-Request-ID. `utils/audit-integrity.ts` captures audit metadata and optional per-event HMAC signing for all ordinary AuditEvent creates. This is not a chain and cannot guarantee deletion/order integrity. Versioned keys stay outside source control; legacy unsigned events are not certified. See REGULATORY_REPORTING.md for the exact guarantee.
+
+All three intelligence features are read-only. Policy simulation does not even insert audit events, to preserve its no-database-mutation contract. Scores/alerts use observed evidence and published formulas; they are not fraud predictions or official ratings. Production hardening, keyring/retention controls and national-scale performance remain separate requirements.

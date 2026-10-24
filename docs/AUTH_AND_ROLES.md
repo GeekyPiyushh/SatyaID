@@ -21,3 +21,15 @@ Browser integration: keep access tokens in memory. The current API returns refre
 - Reviewed transfer decisions are regulator-only. Institutions can initiate from their own active source record and view limited involved transfer status.
 
 Student/enrolment APIs: 120 requests/minute/IP; upload APIs: 60/minute/IP; mock verification: 10/minute/IP, in addition to the student-router limit. Distributed rate limiting, MFA, production cookie/BFF transport, evidence-storage ownership enforcement and credential/key rotation remain PLANNED. Do not process real student identity data before a deployment/privacy review.
+
+## Batch 3 permissions and trust
+
+- AICTE_ADMIN: national registered-data aggregates, employer authorization, regulatory reports/audit verification, policy simulations. Cannot silently approve/revoke student consent through student-owned endpoints.
+- INSTITUTION_ADMIN: own institution analytics/intelligence/reports and redacted audit events, with active admin membership where audit access requires it.
+- INSTITUTION_STAFF: own institution operational analytics/intelligence through active membership; no broad report/audit administration or policy writes.
+- STUDENT: own linked enrolment invitations, consent decisions/history, and credential references. Other students receive unavailable responses; no directory access is added.
+- EMPLOYER: role plus current APPROVED EmployerProfile, intended invitation/request/credential ownership and live claim-specific consent. No national student lookup, institution analytics, conflicts, reports or audit access.
+
+Consent/credential routers use in-memory 60/minute/IP limits. Invitation/request/consent/reference expiry is checked in queries, never delegated to delayed TTL deletion. Tokens are high entropy and digest-only at rest. Repeated references remain valid only within current scope/expiry; each disclosure is logged. Disabled/unlinked student accounts and suspended employers fail closed. Revoke cannot retract data already downloaded.
+
+Existing access-token transport and MFA/password-reset/invitation/production browser-session limitations remain. The new subject-sharing invitation is not a general user-registration invitation or identity proof. The optional audit HMAC key must be independent of JWT, identity and upload keys. Logs/events must never contain raw bearer tokens, vault keys or actual disclosed claim payloads.
