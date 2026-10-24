@@ -1789,6 +1789,89 @@
           "response": []
         },
         {
+          "name": "POST /api/v1/enrolments/{id}/certificate-print-consent",
+          "request": {
+            "method": "POST",
+            "description": "Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry up to86400sec; revoke all own grants for enrolment, history retained.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}/certificate-print-consent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}",
+                "certificate-print-consent"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expiresInSeconds\": 900\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/enrolments/{id}/certificate-print-consent/revoke",
+          "request": {
+            "method": "POST",
+            "description": "Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry up to86400sec; revoke all own grants for enrolment, history retained.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: STUDENT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrolments/{{id}}/certificate-print-consent/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrolments",
+                "{{id}}",
+                "certificate-print-consent",
+                "revoke"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "GET /api/v1/enrolments/{id}/history",
           "request": {
             "method": "GET",
@@ -2016,6 +2099,47 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Synthetic example\",\n  \"state\": \"Synthetic example\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/institutions/{id}/certificate-print-authorization",
+          "request": {
+            "method": "POST",
+            "description": "AICTE operator-reviewed institution print permission only; degree-awarding powers are not independently validated.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: AICTE_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/institutions/{{id}}/certificate-print-authorization",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "institutions",
+                "{{id}}",
+                "certificate-print-authorization"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"authorityReference\": \"Synthetic example\",\n  \"expiresAt\": \"2026-08-01T00:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3335,6 +3459,47 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"institution\": \"000000000000000000000001\",\n  \"apaarId\": \"<synthetic-12-digit-fixture-only>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/students/{id}/certificate-print-data",
+          "request": {
+            "method": "POST",
+            "description": "Active own INSTITUTION_ADMIN and membership, ACTIVE institution/profile/enrolment/offering/reservation. Default REDACTED. FULL needs current regulator print authorization and explicit unexpired enrolment-bound consentId from the current linked student; audit and no-store. Not degree issuance.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.\nRoles: INSTITUTION_ADMIN",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/{{id}}/certificate-print-data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "{{id}}",
+                "certificate-print-data"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"000000000000000000000001\",\n  \"enrolment\": \"000000000000000000000001\",\n  \"purposeCode\": \"CERTIFICATE_PRINT_PREPARATION\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

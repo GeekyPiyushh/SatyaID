@@ -1,3 +1,4 @@
+import { studentStatusFields } from '../validators/student-status';
 import { parse } from 'csv-parse/sync';
 import ExcelJS from 'exceljs';
 import yauzl from 'yauzl';
@@ -6,6 +7,7 @@ import { AppError } from '../utils/app-error';
 export const MAX_BYTES = 2 * 1024 * 1024;
 export const MAX_ROWS = 1000;
 export const columns = ['institutionStudentId', 'displayName', 'dateOfBirth', 'apaarId', 'allocation', 'academicYear', 'admissionDate', 'startsOn', 'endsOn', 'entryType'];
+export const extendedColumns = [...columns, ...studentStatusFields];
 function invalid(code = 'INVALID_UPLOAD'): never { throw new AppError(422, code, 'Upload format or configured limits are invalid'); }
 async function inspectZip(buffer: Buffer) {
  await new Promise<void>((resolve, reject) => {
@@ -35,8 +37,8 @@ async function inspectZip(buffer: Buffer) {
        parser.on('opentag', tag => {
         if (++elements > 100000) throw new Error('XML element limit');
         if (tag.name === 'row') { if (++rows > MAX_ROWS + 1 || Number(tag.attributes.r) > MAX_ROWS + 1) throw new Error('Row limit'); cells = 0; }
-        if (tag.name === 'c') { const address = String(tag.attributes.r ?? ''); if (++cells > columns.length || !/^[A-J][1-9]\d{0,3}$/.test(address) || Number(address.slice(1)) > MAX_ROWS + 1) throw new Error('Cell limit'); }
-        if (tag.name === 'si' && ++strings > (MAX_ROWS + 1) * columns.length) throw new Error('Shared string limit');
+        if (tag.name === 'c') { const address = String(tag.attributes.r ?? ''); if (++cells > extendedColumns.length || !/^[A-M][1-9]\d{0,3}$/.test(address) || Number(address.slice(1)) > MAX_ROWS + 1) throw new Error('Cell limit'); }
+        if (tag.name === 'si' && ++strings > (MAX_ROWS + 1) * extendedColumns.length) throw new Error('Shared string limit');
        });
        parser.write(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks))).close(); zip.readEntry();
       } catch { fail(); }
@@ -63,9 +65,11 @@ export async function parseStudentFile(buffer: Buffer, format: string): Promise<
    if (workbook.worksheets.length !== 1) invalid('MULTIPLE_SHEETS_UNSUPPORTED');
    const sheet = workbook.worksheets[0]!;
    if (sheet.rowCount > MAX_ROWS + 1) invalid('ROW_LIMIT_EXCEEDED');
+   const width = sheet.getRow(1).cellCount;
+   if (![columns.length, extendedColumns.length].includes(width)) invalid('INVALID_COLUMNS');
    sheet.eachRow(row => {
-    if (row.cellCount > columns.length) invalid('INVALID_CELL');
-    matrix.push(Array.from({ length: columns.length }, (_, i) => {
+    if (row.cellCount > width) invalid('INVALID_CELL');
+    matrix.push(Array.from({ length: width }, (_, i) => {
      const cell = row.getCell(i + 1);
      if (cell.type === ExcelJS.ValueType.Formula || cell.type === ExcelJS.ValueType.Hyperlink || typeof cell.value === 'object' && cell.value !== null) invalid('UNSUPPORTED_XLSX_CELL');
      return cell.value === null ? '' : String(cell.value);
@@ -75,9 +79,10 @@ export async function parseStudentFile(buffer: Buffer, format: string): Promise<
  } catch (e) { if (e instanceof AppError) throw e; invalid(); }
  if (matrix.length < 2 || matrix.length > MAX_ROWS + 1) invalid('ROW_LIMIT_EXCEEDED');
  const header = matrix.shift()!;
- if (header.length !== columns.length || header.some((v, i) => v !== columns[i])) invalid('INVALID_COLUMNS');
+ const selected = header.length === columns.length ? columns : extendedColumns;
+ if (header.length !== selected.length || header.some((v, i) => v !== selected[i])) invalid('INVALID_COLUMNS');
  return matrix.map(values => {
-  if (values.length !== columns.length || values.some(v => typeof v !== 'string' || v.length > 500)) invalid('INVALID_CELL');
-  return Object.fromEntries(columns.map((key, i) => [key, values[i]!.trim()]));
+  if (values.length !== selected.length || values.some(v => typeof v !== 'string' || v.length > 500)) invalid('INVALID_CELL');
+  return Object.fromEntries(selected.map((key, i) => [key, values[i]!.trim()]));
  });
 }

@@ -55,3 +55,11 @@ Restore first into an isolated **new** database/cluster and validate replica sup
 ## Diagnostics and monitoring
 
 Safe startup failures show generic configuration/database messages. Inspect variable presence, purpose/version metadata, primary health, index errors, queue states and correlation IDs through controlled operator access; do not print env values, tokens or student payloads. Logs currently provide startup/fatal/shutdown diagnostics, not a full structured telemetry system. Recommended alerts: readiness loss, p95/error rates, 429 pressure, admission transaction conflicts, oldest queue age, stale leases/retry exhaustion, report expiry backlog, missing historic keys, invalid audit signatures, reconciliation findings, backup/restore failures. Validate any thresholds against actual workloads.
+
+## PS compliance diagnostics and print interface
+
+Run `npm run db:indexes` after deployment for new institution print-authorization unique index and enrolment/student/expiry consent lookup. Existing institution profiles need no data rewrite: missing declarations read UNKNOWN. Create-only indexing never drops unrelated indexes. Test new13-column and legacy10-column imports before switching templates.
+
+`npm run reconcile -- --identity` (compiled `node dist/cli/reconcile.js --identity`) is a read-only snapshot diagnostic. It scans at most500 vaults plus500 stale-assurance candidates, checks canonical references, stored-version availability, authenticated decryption/format, lookup consistency and cross-version duplicate identities in the scanned set. It emits only finding codes/internal IDs, never identifiers/digests/ciphertext. Missing keys or truncation limit completeness. It never repairs/rekeys data; retain JSON only in controlled operator logs. Admission reconciliation remains the default command.
+
+Full certificate print data requires operator-recorded institution authorization and a separate current student's scoped print consent. This does not verify degree-awarding authority, confer qualifications or issue a certificate. No new environment secrets or external services are needed; historic identity key custody remains mandatory. No frontend pages, production cleanup rules or official connections were added.

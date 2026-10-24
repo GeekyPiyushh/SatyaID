@@ -13,6 +13,9 @@ Collection: `studentinstitutions`.
 | institutionStudentId | String | true | included |
 | displayName | String | true | included |
 | dateOfBirth | Date | false | included |
+| nriStatus | String | false | included |
+| ociStatus | String | false | included |
+| foreignNationalStatus | String | false | included |
 | status | String | false | included |
 | version | Number | false | included |
 | _id | ObjectId | false | included |
@@ -518,6 +521,70 @@ Indexes (plus automatic unique `_id`):
 
 ```json
 []
+```
+
+## CertificatePrintAuthorization
+
+Collection: `certificateprintauthorizations`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| institution | ObjectId → Institution | true | included |
+| status | String | true | included |
+| authorityReference | String | true | included |
+| expiresAt | Date | true | included |
+| authorizedBy | ObjectId → User | true | included |
+| _id | ObjectId | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[
+  [
+    {
+      "institution": 1
+    },
+    {
+      "unique": true
+    }
+  ]
+]
+```
+
+## CertificatePrintConsent
+
+Collection: `certificateprintconsents`.
+
+| Field | Type | Required | Default selection |
+|---|---|---|---|
+| enrolment | ObjectId → Enrolment | true | included |
+| institution | ObjectId → Institution | true | included |
+| student | ObjectId → Student | true | included |
+| grantedBy | ObjectId → User | true | included |
+| expiresAt | Date | true | included |
+| revokedAt | Date | false | included |
+| purpose | String | false | included |
+| _id | ObjectId | false | included |
+| createdAt | Date | false | included |
+| updatedAt | Date | false | included |
+| __v | Number | false | included |
+
+Indexes (plus automatic unique `_id`):
+
+```json
+[
+  [
+    {
+      "enrolment": 1,
+      "grantedBy": 1,
+      "expiresAt": 1
+    },
+    {}
+  ]
+]
 ```
 
 ## User

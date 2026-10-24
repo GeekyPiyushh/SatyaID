@@ -7,13 +7,13 @@ import { validate } from '../middlewares/validate';
 import { objectId, code, pagination } from '../validators/batch2';
 import { AppError } from '../utils/app-error';
 import { jobAccess, queueUpload, confirmUpload, retryUpload } from '../services/uploads';
-import { columns, MAX_BYTES } from '../services/upload-parser';
+import { extendedColumns, MAX_BYTES } from '../services/upload-parser';
 import { UploadRowResult } from '../models';
 export const uploadRouter = Router();
 uploadRouter.use(authenticate, createRateLimiter('uploads.1', { windowMs: 60000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Upload request limit reached' } }); } }));
 const multipart = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_BYTES, files: 1, fields: 2, fieldSize: 256, parts: 3 } });
 const reply = (res: any, data: unknown) => res.json({ success: true, message: 'Success', data });
-uploadRouter.get('/template', (_req, res) => res.type('text/csv').attachment('satyaid-students-template.csv').send(columns.join(',') + '\n'));
+uploadRouter.get('/template', (_req, res) => res.type('text/csv').attachment('satyaid-students-template.csv').send(extendedColumns.join(',') + '\n'));
 uploadRouter.param('id', (_req, _res, next, id) => objectId.safeParse(id).success ? next() : next(new AppError(422, 'VALIDATION_ERROR', 'Invalid upload reference')));
 uploadRouter.post('/students', multipart.single('file'), validate(z.object({ institution: objectId, idempotencyKey: code }).strict()), async (req, res) => {
  const file = req.file; if (!file) throw new AppError(422, 'FILE_REQUIRED', 'One CSV or XLSX file is required');

@@ -1,3 +1,4 @@
+import { assessIdentity } from './identity-policy';
 import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'node:crypto';
 import * as m from '../models';
@@ -65,6 +66,10 @@ export async function changeAdmission(user: any, id: string, operation: 'activat
   // Serialize allocation decisions against quota approval/retirement updates.
   await m.InstitutionProgram.updateOne({ _id: offering._id }, { $inc: { __v: 1 } }, { session });
   if (operation === 'activate') {
+   const identity = await m.Student.findById(e.student).session(session);
+   if (!identity) throw new AppError(422, 'INVALID_STUDENT', 'Student not found');
+   const assessment = await assessIdentity(String(e.student), String(identity.identityStatus), session);
+   if (assessment.identifierPresence === 'MISSING') await audit(user, 'ADMISSION_IDENTITY_MISSING_REVIEW', 'Enrolment', e._id, session, e.institution);
    const bases = await m.IntakeAllocation.find({ offering: allocation.offering, academicYear: allocation.academicYear, kind: 'BASE' }).session(session);
    const base = bases.reduce((sum, a) => sum + Number(a.approvedSeats), 0);
    const rules = await m.QuotaRule.find({ offering: allocation.offering, academicYear: allocation.academicYear, category: allocation.category, kind: allocation.kind, approvalStatus: 'APPROVED', effectiveFrom: { $lte: new Date() }, effectiveUntil: { $gt: new Date() } }).session(session);

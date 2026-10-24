@@ -760,6 +760,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/enrolments/{id}/certificate-print-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * POST /api/v1/enrolments/{id}/certificate-print-consent
+         * @description Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry up to86400sec; revoke all own grants for enrolment, history retained.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.
+         */
+        post: operations["post_api_v1_enrolments_id_certificate_print_consent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enrolments/{id}/certificate-print-consent/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * POST /api/v1/enrolments/{id}/certificate-print-consent/revoke
+         * @description Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry up to86400sec; revoke all own grants for enrolment, history retained.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.
+         */
+        post: operations["post_api_v1_enrolments_id_certificate_print_consent_revoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/enrolments/{id}/history": {
         parameters: {
             query?: never;
@@ -846,6 +886,26 @@ export interface paths {
          * @description AICTE or active own institution admin membership. Only AICTE changes institution status or appoints admins; staff accounts must already exist.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.
          */
         patch: operations["patch_api_v1_institutions_id_"];
+        trace?: never;
+    };
+    "/api/v1/institutions/{id}/certificate-print-authorization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * POST /api/v1/institutions/{id}/certificate-print-authorization
+         * @description AICTE operator-reviewed institution print permission only; degree-awarding powers are not independently validated.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.
+         */
+        post: operations["post_api_v1_institutions_id_certificate_print_authorization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/institutions/{id}/intake-report": {
@@ -1428,6 +1488,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/students/{id}/certificate-print-data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * POST /api/v1/students/{id}/certificate-print-data
+         * @description Active own INSTITUTION_ADMIN and membership, ACTIVE institution/profile/enrolment/offering/reservation. Default REDACTED. FULL needs current regulator print authorization and explicit unexpired enrolment-bound consentId from the current linked student; audit and no-store. Not degree issuance.  Application semantic refinements (date ordering, claim subsets, current ownership/capacity) remain server-validated.
+         */
+        post: operations["post_api_v1_students_id_certificate_print_data"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/students/{id}/identity-status": {
         parameters: {
             query?: never;
@@ -1825,6 +1905,12 @@ export interface components {
             /** Format: date-time */
             dateOfBirth?: string;
             /** @enum {string} */
+            nriStatus: "YES" | "NO" | "UNKNOWN";
+            /** @enum {string} */
+            ociStatus: "YES" | "NO" | "UNKNOWN";
+            /** @enum {string} */
+            foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
+            /** @enum {string} */
             status: "ACTIVE" | "INACTIVE";
             version: number;
             /** @example 000000000000000000000001 */
@@ -2008,7 +2094,7 @@ export interface components {
                 [key: string]: unknown;
             };
             /** @enum {string} */
-            reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE";
+            reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE" | "STUDENT_STATUS_DISTRIBUTION";
             /** @enum {string} */
             format: "JSON" | "CSV";
             /** @enum {string} */
@@ -2038,10 +2124,36 @@ export interface components {
             /** @enum {string} */
             role: "AICTE_ADMIN" | "INSTITUTION_ADMIN" | "INSTITUTION_STAFF" | "STUDENT" | "EMPLOYER";
         };
+        IdentityAssessment: {
+            /** @constant */
+            policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+            /** @enum {string} */
+            identifierPresence: "LINKED" | "MISSING";
+            /** @enum {string} */
+            formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+            verificationStatus: string;
+            /** @constant */
+            officialVerificationAvailable: false;
+            reviewRequired: boolean;
+            warnings: string[];
+        };
         Student: {
             /** @example 000000000000000000000001 */
             studentId: string;
             identityStatus: string;
+            identityAssessment: {
+                /** @constant */
+                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                /** @enum {string} */
+                identifierPresence: "LINKED" | "MISSING";
+                /** @enum {string} */
+                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                verificationStatus: string;
+                /** @constant */
+                officialVerificationAvailable: false;
+                reviewRequired: boolean;
+                warnings: string[];
+            };
             profiles: {
                 /** @example 000000000000000000000001 */
                 student: string;
@@ -2051,6 +2163,12 @@ export interface components {
                 displayName: string;
                 /** Format: date-time */
                 dateOfBirth?: string;
+                /** @enum {string} */
+                nriStatus: "YES" | "NO" | "UNKNOWN";
+                /** @enum {string} */
+                ociStatus: "YES" | "NO" | "UNKNOWN";
+                /** @enum {string} */
+                foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
                 /** @enum {string} */
                 status: "ACTIVE" | "INACTIVE";
                 version: number;
@@ -2067,6 +2185,19 @@ export interface components {
             /** @example 000000000000000000000001 */
             studentId: string;
             identityStatus: string;
+            identityAssessment: {
+                /** @constant */
+                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                /** @enum {string} */
+                identifierPresence: "LINKED" | "MISSING";
+                /** @enum {string} */
+                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                verificationStatus: string;
+                /** @constant */
+                officialVerificationAvailable: false;
+                reviewRequired: boolean;
+                warnings: string[];
+            };
             profile: {
                 /** @example 000000000000000000000001 */
                 student: string;
@@ -2076,6 +2207,12 @@ export interface components {
                 displayName: string;
                 /** Format: date-time */
                 dateOfBirth?: string;
+                /** @enum {string} */
+                nriStatus: "YES" | "NO" | "UNKNOWN";
+                /** @enum {string} */
+                ociStatus: "YES" | "NO" | "UNKNOWN";
+                /** @enum {string} */
+                foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
                 /** @enum {string} */
                 status: "ACTIVE" | "INACTIVE";
                 version: number;
@@ -2599,6 +2736,78 @@ export interface components {
                 }[];
                 ambiguousCurrentRules: boolean;
             }[];
+        };
+        CertificatePrintAuthorization: {
+            /** @example 000000000000000000000001 */
+            authorizationId: string;
+            /** @example 000000000000000000000001 */
+            institution: string;
+            /** @enum {string} */
+            status: "APPROVED" | "SUSPENDED";
+            /** Format: date-time */
+            expiresAt: string;
+            authorityReference: string;
+            /** @constant */
+            degreeAwardingStatus: "NOT_INDEPENDENTLY_VERIFIED";
+            notice: string;
+        };
+        CertificatePrintConsent: {
+            /** @example 000000000000000000000001 */
+            consentId: string;
+            /** @example 000000000000000000000001 */
+            enrolment: string;
+            /** @example 000000000000000000000001 */
+            institution: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @constant */
+            purpose: "CERTIFICATE_PRINT_PREPARATION";
+            notice: string;
+        };
+        CertificatePrintData: {
+            /** @constant */
+            purpose: "CERTIFICATE_PRINT_PREPARATION";
+            /** @enum {string} */
+            disclosure: "REDACTED" | "FULL";
+            institution: {
+                /** @example 000000000000000000000001 */
+                id: string;
+                name: string;
+                pid: string;
+            };
+            /** @example 000000000000000000000001 */
+            studentId: string;
+            /** @example 000000000000000000000001 */
+            enrolmentId: string;
+            institutionStudentId: string;
+            /** @example null */
+            apaarId: string | null;
+            /** @example ************ */
+            apaarDisplay: string;
+            identityAssessment: {
+                /** @constant */
+                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                /** @enum {string} */
+                identifierPresence: "LINKED" | "MISSING";
+                /** @enum {string} */
+                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                verificationStatus: string;
+                /** @constant */
+                officialVerificationAvailable: false;
+                reviewRequired: boolean;
+                warnings: string[];
+            };
+            /** @constant */
+            eligibility: "ACTIVE_RECORD_PRINT_PREPARATION_ONLY";
+            /** @constant */
+            degreeAwardingStatus: "NOT_INDEPENDENTLY_VERIFIED";
+            /** @constant */
+            officialCertificate: false;
+            /** @constant */
+            qualificationCertified: false;
+            /** Format: date-time */
+            generatedAt: string;
+            notice: string;
         };
         Error: {
             /** @constant */
@@ -12792,6 +13001,475 @@ export interface operations {
             };
         };
     };
+    post_api_v1_enrolments_id_certificate_print_consent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expiresInSeconds": 900
+                 *     }
+                 */
+                "application/json": {
+                    /** @default 900 */
+                    expiresInSeconds?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success; synthetic illustrative response. */
+            201: {
+                headers: {
+                    /** @description Safe generated correlation ID */
+                    "X-Request-ID"?: string;
+                    /** @description Never persist sensitive print payloads or send to analytics */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Synthetic example",
+                     *       "data": {
+                     *         "consentId": "000000000000000000000001",
+                     *         "enrolment": "000000000000000000000001",
+                     *         "institution": "000000000000000000000001",
+                     *         "expiresAt": "2026-08-01T00:00:00Z",
+                     *         "purpose": "CERTIFICATE_PRINT_PREPARATION",
+                     *         "notice": "Synthetic example"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        message: string;
+                        data: {
+                            /** @example 000000000000000000000001 */
+                            consentId: string;
+                            /** @example 000000000000000000000001 */
+                            enrolment: string;
+                            /** @example 000000000000000000000001 */
+                            institution: string;
+                            /** Format: date-time */
+                            expiresAt: string;
+                            /** @constant */
+                            purpose: "CERTIFICATE_PRINT_PREPARATION";
+                            notice: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed JSON/request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Authentication/session unavailable */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Role, origin, CSRF or object scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Resource unavailable; may conceal authorization */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description State, capacity, duplicate or idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Body/file size exceeded */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unsupported encoding/media type */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Strict input validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Rate limited; use Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unexpected internal failure; no private diagnostics */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Database, provider or key unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    post_api_v1_enrolments_id_certificate_print_consent_revoke: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /** @example {} */
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Success; synthetic illustrative response. */
+            200: {
+                headers: {
+                    /** @description Safe generated correlation ID */
+                    "X-Request-ID"?: string;
+                    /** @description Never persist sensitive print payloads or send to analytics */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Synthetic example",
+                     *       "data": {
+                     *         "revoked": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        message: string;
+                        data: {
+                            /** @constant */
+                            revoked: true;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed JSON/request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Authentication/session unavailable */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Role, origin, CSRF or object scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Resource unavailable; may conceal authorization */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description State, capacity, duplicate or idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Body/file size exceeded */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unsupported encoding/media type */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Strict input validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Rate limited; use Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unexpected internal failure; no private diagnostics */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Database, provider or key unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
     get_api_v1_enrolments_id_history: {
         parameters: {
             query?: never;
@@ -14072,6 +14750,258 @@ export interface operations {
                             /** Format: date-time */
                             updatedAt?: string;
                             __v?: number;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed JSON/request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Authentication/session unavailable */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Role, origin, CSRF or object scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Resource unavailable; may conceal authorization */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description State, capacity, duplicate or idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Body/file size exceeded */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unsupported encoding/media type */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Strict input validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Rate limited; use Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unexpected internal failure; no private diagnostics */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Database, provider or key unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    post_api_v1_institutions_id_certificate_print_authorization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "status": "APPROVED",
+                 *       "authorityReference": "Synthetic example",
+                 *       "expiresAt": "2026-08-01T00:00:00Z"
+                 *     }
+                 */
+                "application/json": {
+                    /** @enum {string} */
+                    status: "APPROVED" | "SUSPENDED";
+                    authorityReference: string;
+                    /** Format: date-time */
+                    expiresAt: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success; synthetic illustrative response. */
+            200: {
+                headers: {
+                    /** @description Safe generated correlation ID */
+                    "X-Request-ID"?: string;
+                    /** @description Never persist sensitive print payloads or send to analytics */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Synthetic example",
+                     *       "data": {
+                     *         "authorizationId": "000000000000000000000001",
+                     *         "institution": "000000000000000000000001",
+                     *         "status": "APPROVED",
+                     *         "expiresAt": "2026-08-01T00:00:00Z",
+                     *         "authorityReference": "Synthetic example",
+                     *         "degreeAwardingStatus": "NOT_INDEPENDENTLY_VERIFIED",
+                     *         "notice": "Synthetic example"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        message: string;
+                        data: {
+                            /** @example 000000000000000000000001 */
+                            authorizationId: string;
+                            /** @example 000000000000000000000001 */
+                            institution: string;
+                            /** @enum {string} */
+                            status: "APPROVED" | "SUSPENDED";
+                            /** Format: date-time */
+                            expiresAt: string;
+                            authorityReference: string;
+                            /** @constant */
+                            degreeAwardingStatus: "NOT_INDEPENDENTLY_VERIFIED";
+                            notice: string;
                         };
                     };
                 };
@@ -19125,7 +20055,7 @@ export interface operations {
                                     [key: string]: unknown;
                                 };
                                 /** @enum {string} */
-                                reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE";
+                                reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE" | "STUDENT_STATUS_DISTRIBUTION";
                                 /** @enum {string} */
                                 format: "JSON" | "CSV";
                                 /** @enum {string} */
@@ -19358,7 +20288,7 @@ export interface operations {
                  */
                 "application/json": {
                     /** @enum {string} */
-                    reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE";
+                    reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE" | "STUDENT_STATUS_DISTRIBUTION";
                     /** @enum {string} */
                     format: "JSON" | "CSV";
                     filters: {
@@ -19636,7 +20566,7 @@ export interface operations {
                                 [key: string]: unknown;
                             };
                             /** @enum {string} */
-                            reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE";
+                            reportType: "ENROLMENT_SUMMARY" | "INTAKE_UTILIZATION" | "CATEGORY_UTILIZATION" | "UPLOAD_ERRORS" | "OVERLAP_CASES" | "IDENTITY_STATUS" | "ACADEMIC_YEAR_COMPLIANCE" | "STUDENT_STATUS_DISTRIBUTION";
                             /** @enum {string} */
                             format: "JSON" | "CSV";
                             /** @enum {string} */
@@ -21048,6 +21978,12 @@ export interface operations {
                                 /** Format: date-time */
                                 dateOfBirth?: string;
                                 /** @enum {string} */
+                                nriStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
+                                ociStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
+                                foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
                                 status: "ACTIVE" | "INACTIVE";
                                 version: number;
                                 /** @example 000000000000000000000001 */
@@ -21265,6 +22201,12 @@ export interface operations {
                     displayName: string;
                     /** Format: date */
                     dateOfBirth?: string;
+                    /** @enum {string} */
+                    nriStatus?: "YES" | "NO" | "UNKNOWN";
+                    /** @enum {string} */
+                    ociStatus?: "YES" | "NO" | "UNKNOWN";
+                    /** @enum {string} */
+                    foreignNationalStatus?: "YES" | "NO" | "UNKNOWN";
                     apaarId?: string;
                     existingStudent?: string;
                 };
@@ -21286,11 +22228,23 @@ export interface operations {
                      *       "data": {
                      *         "studentId": "000000000000000000000001",
                      *         "identityStatus": "Synthetic example",
+                     *         "identityAssessment": {
+                     *           "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+                     *           "identifierPresence": "LINKED",
+                     *           "formatStatus": "VALID_AT_LINK",
+                     *           "verificationStatus": "Synthetic example",
+                     *           "officialVerificationAvailable": false,
+                     *           "reviewRequired": false,
+                     *           "warnings": []
+                     *         },
                      *         "profile": {
                      *           "student": "000000000000000000000001",
                      *           "institution": "000000000000000000000001",
                      *           "institutionStudentId": "Synthetic example",
                      *           "displayName": "Synthetic example",
+                     *           "nriStatus": "YES",
+                     *           "ociStatus": "YES",
+                     *           "foreignNationalStatus": "YES",
                      *           "status": "ACTIVE",
                      *           "version": 1,
                      *           "_id": "000000000000000000000001"
@@ -21306,6 +22260,19 @@ export interface operations {
                             /** @example 000000000000000000000001 */
                             studentId: string;
                             identityStatus: string;
+                            identityAssessment: {
+                                /** @constant */
+                                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                                /** @enum {string} */
+                                identifierPresence: "LINKED" | "MISSING";
+                                /** @enum {string} */
+                                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                                verificationStatus: string;
+                                /** @constant */
+                                officialVerificationAvailable: false;
+                                reviewRequired: boolean;
+                                warnings: string[];
+                            };
                             profile: {
                                 /** @example 000000000000000000000001 */
                                 student: string;
@@ -21315,6 +22282,12 @@ export interface operations {
                                 displayName: string;
                                 /** Format: date-time */
                                 dateOfBirth?: string;
+                                /** @enum {string} */
+                                nriStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
+                                ociStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
+                                foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
                                 /** @enum {string} */
                                 status: "ACTIVE" | "INACTIVE";
                                 version: number;
@@ -21537,6 +22510,15 @@ export interface operations {
                      *       "data": {
                      *         "studentId": "000000000000000000000001",
                      *         "identityStatus": "Synthetic example",
+                     *         "identityAssessment": {
+                     *           "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+                     *           "identifierPresence": "LINKED",
+                     *           "formatStatus": "VALID_AT_LINK",
+                     *           "verificationStatus": "Synthetic example",
+                     *           "officialVerificationAvailable": false,
+                     *           "reviewRequired": false,
+                     *           "warnings": []
+                     *         },
                      *         "profiles": []
                      *       }
                      *     }
@@ -21549,6 +22531,19 @@ export interface operations {
                             /** @example 000000000000000000000001 */
                             studentId: string;
                             identityStatus: string;
+                            identityAssessment: {
+                                /** @constant */
+                                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                                /** @enum {string} */
+                                identifierPresence: "LINKED" | "MISSING";
+                                /** @enum {string} */
+                                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                                verificationStatus: string;
+                                /** @constant */
+                                officialVerificationAvailable: false;
+                                reviewRequired: boolean;
+                                warnings: string[];
+                            };
                             profiles: {
                                 /** @example 000000000000000000000001 */
                                 student: string;
@@ -21558,6 +22553,12 @@ export interface operations {
                                 displayName: string;
                                 /** Format: date-time */
                                 dateOfBirth?: string;
+                                /** @enum {string} */
+                                nriStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
+                                ociStatus: "YES" | "NO" | "UNKNOWN";
+                                /** @enum {string} */
+                                foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
                                 /** @enum {string} */
                                 status: "ACTIVE" | "INACTIVE";
                                 version: number;
@@ -21775,6 +22776,12 @@ export interface operations {
                     dateOfBirth?: string;
                     /** @enum {string} */
                     status?: "ACTIVE" | "INACTIVE";
+                    /** @enum {string} */
+                    nriStatus?: "YES" | "NO" | "UNKNOWN";
+                    /** @enum {string} */
+                    ociStatus?: "YES" | "NO" | "UNKNOWN";
+                    /** @enum {string} */
+                    foreignNationalStatus?: "YES" | "NO" | "UNKNOWN";
                     version: number;
                 };
             };
@@ -21797,6 +22804,9 @@ export interface operations {
                      *         "institution": "000000000000000000000001",
                      *         "institutionStudentId": "Synthetic example",
                      *         "displayName": "Synthetic example",
+                     *         "nriStatus": "YES",
+                     *         "ociStatus": "YES",
+                     *         "foreignNationalStatus": "YES",
                      *         "status": "ACTIVE",
                      *         "version": 1,
                      *         "_id": "000000000000000000000001"
@@ -21816,6 +22826,12 @@ export interface operations {
                             displayName: string;
                             /** Format: date-time */
                             dateOfBirth?: string;
+                            /** @enum {string} */
+                            nriStatus: "YES" | "NO" | "UNKNOWN";
+                            /** @enum {string} */
+                            ociStatus: "YES" | "NO" | "UNKNOWN";
+                            /** @enum {string} */
+                            foreignNationalStatus: "YES" | "NO" | "UNKNOWN";
                             /** @enum {string} */
                             status: "ACTIVE" | "INACTIVE";
                             version: number;
@@ -22466,6 +23482,314 @@ export interface operations {
             };
         };
     };
+    post_api_v1_students_id_certificate_print_data: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "institution": "000000000000000000000001",
+                 *       "enrolment": "000000000000000000000001",
+                 *       "purposeCode": "CERTIFICATE_PRINT_PREPARATION"
+                 *     }
+                 */
+                "application/json": {
+                    institution: string;
+                    enrolment: string;
+                    /**
+                     * @default REDACTED
+                     * @enum {string}
+                     */
+                    disclosure?: "REDACTED" | "FULL";
+                    consentId?: string;
+                    /** @constant */
+                    purposeCode: "CERTIFICATE_PRINT_PREPARATION";
+                };
+            };
+        };
+        responses: {
+            /** @description Success; synthetic illustrative response. */
+            200: {
+                headers: {
+                    /** @description Safe generated correlation ID */
+                    "X-Request-ID"?: string;
+                    /** @description Never persist sensitive print payloads or send to analytics */
+                    "Cache-Control"?: "no-store, private";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Synthetic example",
+                     *       "data": {
+                     *         "purpose": "CERTIFICATE_PRINT_PREPARATION",
+                     *         "disclosure": "REDACTED",
+                     *         "institution": {
+                     *           "id": "000000000000000000000001",
+                     *           "name": "Synthetic example",
+                     *           "pid": "Synthetic example"
+                     *         },
+                     *         "studentId": "000000000000000000000001",
+                     *         "enrolmentId": "000000000000000000000001",
+                     *         "institutionStudentId": "Synthetic example",
+                     *         "apaarId": null,
+                     *         "apaarDisplay": "************",
+                     *         "identityAssessment": {
+                     *           "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+                     *           "identifierPresence": "LINKED",
+                     *           "formatStatus": "VALID_AT_LINK",
+                     *           "verificationStatus": "Synthetic example",
+                     *           "officialVerificationAvailable": false,
+                     *           "reviewRequired": false,
+                     *           "warnings": []
+                     *         },
+                     *         "eligibility": "ACTIVE_RECORD_PRINT_PREPARATION_ONLY",
+                     *         "degreeAwardingStatus": "NOT_INDEPENDENTLY_VERIFIED",
+                     *         "officialCertificate": false,
+                     *         "qualificationCertified": false,
+                     *         "generatedAt": "2026-08-01T00:00:00Z",
+                     *         "notice": "Synthetic example"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        message: string;
+                        data: {
+                            /** @constant */
+                            purpose: "CERTIFICATE_PRINT_PREPARATION";
+                            /** @enum {string} */
+                            disclosure: "REDACTED" | "FULL";
+                            institution: {
+                                /** @example 000000000000000000000001 */
+                                id: string;
+                                name: string;
+                                pid: string;
+                            };
+                            /** @example 000000000000000000000001 */
+                            studentId: string;
+                            /** @example 000000000000000000000001 */
+                            enrolmentId: string;
+                            institutionStudentId: string;
+                            /** @example null */
+                            apaarId: string | null;
+                            /** @example ************ */
+                            apaarDisplay: string;
+                            identityAssessment: {
+                                /** @constant */
+                                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                                /** @enum {string} */
+                                identifierPresence: "LINKED" | "MISSING";
+                                /** @enum {string} */
+                                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                                verificationStatus: string;
+                                /** @constant */
+                                officialVerificationAvailable: false;
+                                reviewRequired: boolean;
+                                warnings: string[];
+                            };
+                            /** @constant */
+                            eligibility: "ACTIVE_RECORD_PRINT_PREPARATION_ONLY";
+                            /** @constant */
+                            degreeAwardingStatus: "NOT_INDEPENDENTLY_VERIFIED";
+                            /** @constant */
+                            officialCertificate: false;
+                            /** @constant */
+                            qualificationCertified: false;
+                            /** Format: date-time */
+                            generatedAt: string;
+                            notice: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed JSON/request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Authentication/session unavailable */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Role, origin, CSRF or object scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Resource unavailable; may conceal authorization */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description State, capacity, duplicate or idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Body/file size exceeded */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unsupported encoding/media type */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Strict input validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Rate limited; use Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Unexpected internal failure; no private diagnostics */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+            /** @description Database, provider or key unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: false;
+                        error: {
+                            code: string;
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
     get_api_v1_students_id_identity_status: {
         parameters: {
             query?: {
@@ -22498,7 +23822,16 @@ export interface operations {
                      *           "status": "UNVERIFIED",
                      *           "_id": "000000000000000000000001"
                      *         },
-                     *         "official": false
+                     *         "official": false,
+                     *         "identityAssessment": {
+                     *           "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+                     *           "identifierPresence": "LINKED",
+                     *           "formatStatus": "VALID_AT_LINK",
+                     *           "verificationStatus": "Synthetic example",
+                     *           "officialVerificationAvailable": false,
+                     *           "reviewRequired": false,
+                     *           "warnings": []
+                     *         }
                      *       }
                      *     }
                      */
@@ -22521,6 +23854,19 @@ export interface operations {
                             } | null;
                             /** @constant */
                             official: false;
+                            identityAssessment: {
+                                /** @constant */
+                                policy: "ALLOW_WITH_REVIEW_FLAGS_V1";
+                                /** @enum {string} */
+                                identifierPresence: "LINKED" | "MISSING";
+                                /** @enum {string} */
+                                formatStatus: "VALID_AT_LINK" | "NOT_PROVIDED";
+                                verificationStatus: string;
+                                /** @constant */
+                                officialVerificationAvailable: false;
+                                reviewRequired: boolean;
+                                warnings: string[];
+                            };
                         };
                     };
                 };
@@ -25222,7 +26568,7 @@ export interface operations {
                     idempotencyKey: string;
                     /**
                      * Format: binary
-                     * @description CSV or XLSX, maximum 2 MiB / 1000 rows; exact ten-column template.
+                     * @description CSV or XLSX, maximum 2 MiB / 1000 rows; exact legacy ten-column or extended thirteen-column template.
                      */
                     file: string;
                 };
@@ -25475,7 +26821,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType */
+                    /** @example institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType,nriStatus,ociStatus,foreignNationalStatus */
                     "text/csv": string;
                 };
             };

@@ -1,3 +1,5 @@
+import { authorizeCertificatePrint } from '../services/certificate-print';
+import { printAuthorizationSchema } from '../validators/certificate-print';
 import { createRateLimiter } from '../utils/rate-limit';
 import { Router } from 'express';
 import { z } from 'zod';
@@ -54,3 +56,7 @@ managementRouter.get('/institutions/:id/intake-report', validate(z.object({ acad
 
 managementRouter.patch('/offerings/:id', admin, validate(z.object({ active: z.boolean() }).strict()), async (req, res) => reply(res, await auditedWrite(m.InstitutionProgram, res.locals.validated, res.locals.user, String(req.params.id))));
 managementRouter.patch('/quota-rules/:id/retire', admin, validate(z.object({}).strict()), async (req, res) => reply(res, await auditedWrite(m.QuotaRule, { approvalStatus: 'RETIRED' }, res.locals.user, String(req.params.id))));
+
+managementRouter.post('/institutions/:id/certificate-print-authorization', admin, validate(printAuthorizationSchema), async (req, res) => {
+ res.setHeader('Cache-Control', 'no-store'); reply(res, await authorizeCertificatePrint(res.locals.user, String(req.params.id), res.locals.validated));
+});

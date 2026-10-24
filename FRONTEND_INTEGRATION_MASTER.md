@@ -31,6 +31,9 @@ All routes below begin `/api/v1`. `:id` means a saved internal ObjectId, never a
 | AICTE — Transfers | POST `/transfers`; GET `/transfers/:id`; POST `/transfers/:id/approve`, `/transfers/:id/reject` |
 | AICTE — Reports/audit | GET/POST `/reports`; GET `/reports/prevalidation`, `/reports/:id`, `/reports/:id/download`, `/audit/events`, `/audit/integrity` |
 | AICTE — Anomalies/quality/simulation | GET `/intelligence/anomalies`, `/intelligence/institutions/:id/health`, `/intelligence/institutions/:id/quality-score`; POST `/intelligence/policy-simulations` |
+| AICTE — Print integration authorization | POST `/institutions/:id/certificate-print-authorization`; operator-reviewed authority reference/status/expiry, not government confirmation |
+| Institution administrator — Print data | POST `/students/:id/certificate-print-data`; REDACTED default. FULL requires own active record, regulator print authorization and student consent. Structured data only, no degree/PDF issuance |
+| Student — Print consent | POST `/enrolments/:id/certificate-print-consent`; POST `/enrolments/:id/certificate-print-consent/revoke`; own linked active enrolment; separate from employer consent |
 | AICTE — Employer governance | POST `/verification/employers` for existing account authorization. Employer directory, account creation and onboarding UI APIs: **NOT IMPLEMENTED** |
 | Institution administrator — Dashboard/intake | GET `/analytics/institutions/:id/overview`, `/analytics/intake-utilization`, `/analytics/enrolments/trends`, `/analytics/uploads/summary`, `/analytics/conflicts/summary`, `/institutions/:id/intake-report`, `/offerings/:id/capacity` with own institution scope |
 | Institution administrator — Students/admissions | Student/enrolment CRUD and lifecycle routes above within own institution. Account linking and reviewed existingStudent attachment: regulator only |
@@ -49,11 +52,11 @@ All routes below begin `/api/v1`. `:id` means a saved internal ObjectId, never a
 | Employer — Pending requests/claims | POST `/verification/requests`; GET `/verification/requests`, `/verification/requests/:id/result` |
 | Employer — Scanned references | POST `/credentials/verify`; GET `/credentials/:id` if bound. Public lookup, student enumeration, employer directory: **NOT IMPLEMENTED** |
 
-Other unsupported actions: graduation/completion, certificate PDF printing, government submission, official APAAR verification, public QR verification, general transfer listing, upload job listing, WebSocket updates. Build polling and known-ID navigation only. NRI/OCI/FN are configured seat-category pools; do not invent undocumented per-student boolean inputs.
+Other unsupported actions: graduation/completion, certificate PDF printing, government submission, official APAAR verification, public QR verification, general transfer listing, upload job listing, WebSocket updates. Build polling and known-ID navigation only. NRI/OCI/FN seat pools remain separate from the new institution profile declarations nriStatus/ociStatus/foreignNationalStatus (YES/NO/UNKNOWN). These declarations do not grant seats or certify eligibility.
 
 ## 3. Complete API catalog
 
-The following catalog is generated from the **98 actual Express method/path pairs**, attached Zod input schemas and reviewed service response projections. [OpenAPI 3.1](docs/openapi.yaml) is validated by SwaggerParser; generated types are in [shared/api-types.ts](shared/api-types.ts). Run `npm run api:generate` after changing routes, then `npm run api:check`.
+The following catalog is generated from the **102 actual Express method/path pairs**, attached Zod input schemas and reviewed service response projections. [OpenAPI 3.1](docs/openapi.yaml) is validated by SwaggerParser; generated types are in [shared/api-types.ts](shared/api-types.ts). Run `npm run api:generate` after changing routes, then `npm run api:check`.
 
 Conventions: internal IDs are 24 hexadecimal characters; pagination defaults page=1/limit=20 and caps limit=100 unless the exact schema below says otherwise. Strict input objects reject unknown fields. Query parameters are URL encoded. Success normally uses `{success:true,message:"Success",data:...}`; downloads return raw JSON/CSV. Samples illustrate response shapes using synthetic values, not valid credentials or existing records. Use the schemas for optional fields and replace example resource IDs with IDs from your environment.
 
@@ -879,7 +882,7 @@ null
 
 **Response contract:** `{"type":"object","properties":{"observedAt":{"type":"string","format":"date-time"},"filters":{"type":"object"},"applicableFilters":{"type":"array","items":{"type":"string"}},"items":{"type":"array","items":{"type":"object","properties":{"_id":{"type":"string"},"count":{"type":"number"}},"required":["_id","count"]}}},"required":["observedAt","filters","applicableFilters","items"]}`. See `docs/openapi.yaml` operation `get_api_v1_analytics_uploads_summary` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
@@ -2573,7 +2576,93 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 42. GET `/api/v1/enrolments/{id}/history`
+### 42. POST `/api/v1/enrolments/{id}/certificate-print-consent`
+
+**Roles:** STUDENT. **Scope:** Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry up to86400sec; revoke all own grants for enrolment, history retained.
+
+**Headers:** Authorization: Bearer <accessToken>.  Content-Type: application/json.
+
+**Query schema:**
+```json
+[]
+```
+
+**Request body schema:**
+```json
+{
+  "type": "object",
+  "properties": {
+    "expiresInSeconds": {
+      "default": 900,
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 86400
+    }
+  },
+  "additionalProperties": false
+}
+```
+
+**HTTP 201 success example (synthetic):**
+```json
+{
+  "success": true,
+  "message": "Synthetic example",
+  "data": {
+    "consentId": "000000000000000000000001",
+    "enrolment": "000000000000000000000001",
+    "institution": "000000000000000000000001",
+    "expiresAt": "2026-08-01T00:00:00Z",
+    "purpose": "CERTIFICATE_PRINT_PREPARATION",
+    "notice": "Synthetic example"
+  }
+}
+```
+
+**Response contract:** `{"type":"object","properties":{"consentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"enrolment":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"expiresAt":{"type":"string","format":"date-time"},"purpose":{"const":"CERTIFICATE_PRINT_PREPARATION"},"notice":{"type":"string"}},"required":["consentId","enrolment","institution","expiresAt","purpose","notice"]}`. See `docs/openapi.yaml` operation `post_api_v1_enrolments_id_certificate_print_consent` and generated `paths` types for nested fields/optional projections.
+
+**Relevant errors:** common errors above plus PRINT_RECORD_UNAVAILABLE, PRINT_AUTHORIZATION_REQUIRED, PRINT_CONSENT_REQUIRED, IDENTITY_NOT_LINKED, IDENTITY_KEY_VERSION_UNAVAILABLE, IDENTITY_DECRYPTION_FAILED. These family lists include service possibilities; inspect status/code, never infer identity existence.
+
+**Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
+
+### 43. POST `/api/v1/enrolments/{id}/certificate-print-consent/revoke`
+
+**Roles:** STUDENT. **Scope:** Owning active linked STUDENT only; grant for ACTIVE enrolment, expiry up to86400sec; revoke all own grants for enrolment, history retained.
+
+**Headers:** Authorization: Bearer <accessToken>.  Content-Type: application/json.
+
+**Query schema:**
+```json
+[]
+```
+
+**Request body schema:**
+```json
+{
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
+```
+
+**HTTP 200 success example (synthetic):**
+```json
+{
+  "success": true,
+  "message": "Synthetic example",
+  "data": {
+    "revoked": true
+  }
+}
+```
+
+**Response contract:** `{"type":"object","properties":{"revoked":{"const":true}},"required":["revoked"]}`. See `docs/openapi.yaml` operation `post_api_v1_enrolments_id_certificate_print_consent_revoke` and generated `paths` types for nested fields/optional projections.
+
+**Relevant errors:** common errors above plus PRINT_RECORD_UNAVAILABLE, PRINT_AUTHORIZATION_REQUIRED, PRINT_CONSENT_REQUIRED, IDENTITY_NOT_LINKED, IDENTITY_KEY_VERSION_UNAVAILABLE, IDENTITY_DECRYPTION_FAILED. These family lists include service possibilities; inspect status/code, never infer identity existence.
+
+**Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
+
+### 44. GET `/api/v1/enrolments/{id}/history`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT. **Scope:** Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.
 
@@ -2604,7 +2693,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 43. POST `/api/v1/enrolments/{id}/withdraw`
+### 45. POST `/api/v1/enrolments/{id}/withdraw`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -2646,7 +2735,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 44. GET `/api/v1/institutions`
+### 46. GET `/api/v1/institutions`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** AICTE or active institution membership; institution list returns own memberships for non-regulators.
 
@@ -2739,7 +2828,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 45. POST `/api/v1/institutions`
+### 47. POST `/api/v1/institutions`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -2809,7 +2898,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 46. GET `/api/v1/institutions/{id}`
+### 48. GET `/api/v1/institutions/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** AICTE or active institution membership; institution list returns own memberships for non-regulators.
 
@@ -2846,7 +2935,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 47. PATCH `/api/v1/institutions/{id}`
+### 49. PATCH `/api/v1/institutions/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE or active own institution admin membership. Only AICTE changes institution status or appoints admins; staff accounts must already exist.
 
@@ -2906,7 +2995,72 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 48. GET `/api/v1/institutions/{id}/intake-report`
+### 50. POST `/api/v1/institutions/{id}/certificate-print-authorization`
+
+**Roles:** AICTE_ADMIN. **Scope:** AICTE operator-reviewed institution print permission only; degree-awarding powers are not independently validated.
+
+**Headers:** Authorization: Bearer <accessToken>.  Content-Type: application/json.
+
+**Query schema:**
+```json
+[]
+```
+
+**Request body schema:**
+```json
+{
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "SUSPENDED"
+      ]
+    },
+    "authorityReference": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]{1,80}$"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+    }
+  },
+  "required": [
+    "status",
+    "authorityReference",
+    "expiresAt"
+  ],
+  "additionalProperties": false
+}
+```
+
+**HTTP 200 success example (synthetic):**
+```json
+{
+  "success": true,
+  "message": "Synthetic example",
+  "data": {
+    "authorizationId": "000000000000000000000001",
+    "institution": "000000000000000000000001",
+    "status": "APPROVED",
+    "expiresAt": "2026-08-01T00:00:00Z",
+    "authorityReference": "Synthetic example",
+    "degreeAwardingStatus": "NOT_INDEPENDENTLY_VERIFIED",
+    "notice": "Synthetic example"
+  }
+}
+```
+
+**Response contract:** `{"type":"object","properties":{"authorizationId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"status":{"type":"string","enum":["APPROVED","SUSPENDED"]},"expiresAt":{"type":"string","format":"date-time"},"authorityReference":{"type":"string"},"degreeAwardingStatus":{"const":"NOT_INDEPENDENTLY_VERIFIED"},"notice":{"type":"string"}},"required":["authorizationId","institution","status","expiresAt","authorityReference","degreeAwardingStatus","notice"]}`. See `docs/openapi.yaml` operation `post_api_v1_institutions_id_certificate_print_authorization` and generated `paths` types for nested fields/optional projections.
+
+**Relevant errors:** common errors above plus PRINT_RECORD_UNAVAILABLE, PRINT_AUTHORIZATION_REQUIRED, PRINT_CONSENT_REQUIRED, IDENTITY_NOT_LINKED, IDENTITY_KEY_VERSION_UNAVAILABLE, IDENTITY_DECRYPTION_FAILED. These family lists include service possibilities; inspect status/code, never infer identity existence.
+
+**Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
+
+### 51. GET `/api/v1/institutions/{id}/intake-report`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** AICTE or active institution membership; institution list returns own memberships for non-regulators.
 
@@ -2946,7 +3100,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 49. POST `/api/v1/institutions/{id}/memberships`
+### 52. POST `/api/v1/institutions/{id}/memberships`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE or active own institution admin membership. Only AICTE changes institution status or appoints admins; staff accounts must already exist.
 
@@ -3007,7 +3161,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 50. PATCH `/api/v1/institutions/{id}/memberships/{membershipId}`
+### 53. PATCH `/api/v1/institutions/{id}/memberships/{membershipId}`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3055,7 +3209,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 51. GET `/api/v1/institutions/{id}/offerings`
+### 54. GET `/api/v1/institutions/{id}/offerings`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** AICTE or active institution membership; institution list returns own memberships for non-regulators.
 
@@ -3086,7 +3240,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 52. POST `/api/v1/intakes`
+### 55. POST `/api/v1/intakes`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3169,7 +3323,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 53. PATCH `/api/v1/intakes/{id}`
+### 56. PATCH `/api/v1/intakes/{id}`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3229,7 +3383,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 54. GET `/api/v1/intelligence/anomalies`
+### 57. GET `/api/v1/intelligence/anomalies`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.
 
@@ -3302,7 +3456,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 55. GET `/api/v1/intelligence/institutions/{id}/health`
+### 58. GET `/api/v1/intelligence/institutions/{id}/health`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.
 
@@ -3390,7 +3544,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 56. GET `/api/v1/intelligence/institutions/{id}/quality-score`
+### 59. GET `/api/v1/intelligence/institutions/{id}/quality-score`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.
 
@@ -3456,7 +3610,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 57. POST `/api/v1/intelligence/policy-simulations`
+### 60. POST `/api/v1/intelligence/policy-simulations`
 
 **Roles:** AICTE_ADMIN. **Scope:** AICTE global or institution writers with active membership; explicit institution filter required except institution path. State filtering regulator-only.
 
@@ -3571,7 +3725,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 58. POST `/api/v1/offerings`
+### 61. POST `/api/v1/offerings`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3624,7 +3778,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 59. PATCH `/api/v1/offerings/{id}`
+### 62. PATCH `/api/v1/offerings/{id}`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3671,7 +3825,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 60. GET `/api/v1/offerings/{id}/capacity`
+### 63. GET `/api/v1/offerings/{id}/capacity`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** AICTE or active institution membership; institution list returns own memberships for non-regulators.
 
@@ -3718,7 +3872,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 61. GET `/api/v1/offerings/{id}/quota-rules`
+### 64. GET `/api/v1/offerings/{id}/quota-rules`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** AICTE or active institution membership; institution list returns own memberships for non-regulators.
 
@@ -3749,7 +3903,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 62. GET `/api/v1/programs`
+### 65. GET `/api/v1/programs`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** All authenticated roles can read these bounded global master lists (first 100).
 
@@ -3780,7 +3934,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 63. POST `/api/v1/programs`
+### 66. POST `/api/v1/programs`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3834,7 +3988,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 64. PATCH `/api/v1/programs/{id}`
+### 67. PATCH `/api/v1/programs/{id}`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -3888,7 +4042,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 65. POST `/api/v1/quota-rules`
+### 68. POST `/api/v1/quota-rules`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -4019,7 +4173,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 66. PATCH `/api/v1/quota-rules/{id}/retire`
+### 69. PATCH `/api/v1/quota-rules/{id}/retire`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -4068,7 +4222,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 67. GET `/api/v1/reports`
+### 70. GET `/api/v1/reports`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.
 
@@ -4135,13 +4289,13 @@ null
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"requestedBy":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"filters":{"type":"object","additionalProperties":true},"reportType":{"type":"string","enum":["ENROLMENT_SUMMARY","INTAKE_UTILIZATION","CATEGORY_UTILIZATION","UPLOAD_ERRORS","OVERLAP_CASES","IDENTITY_STATUS","ACADEMIC_YEAR_COMPLIANCE"]},"format":{"type":"string","enum":["JSON","CSV"]},"status":{"type":"string","enum":["PENDING","PROCESSING","COMPLETED","FAILED"]},"attempts":{"type":"number"},"failureCode":{"type":"string"},"generatedAt":{"type":"string","format":"date-time"},"expiresAt":{"type":"string","format":"date-time"},"metadata":{"type":"object","additionalProperties":true},"contentDigest":{"type":"string"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["requestedBy","filters","reportType","format","status","attempts","expiresAt","_id"]}},"total":{"type":"number"},"page":{"type":"number"},"limit":{"type":"number"}},"required":["items","total","page","limit"]}`. See `docs/openapi.yaml` operation `get_api_v1_reports` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"requestedBy":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"filters":{"type":"object","additionalProperties":true},"reportType":{"type":"string","enum":["ENROLMENT_SUMMARY","INTAKE_UTILIZATION","CATEGORY_UTILIZATION","UPLOAD_ERRORS","OVERLAP_CASES","IDENTITY_STATUS","ACADEMIC_YEAR_COMPLIANCE","STUDENT_STATUS_DISTRIBUTION"]},"format":{"type":"string","enum":["JSON","CSV"]},"status":{"type":"string","enum":["PENDING","PROCESSING","COMPLETED","FAILED"]},"attempts":{"type":"number"},"failureCode":{"type":"string"},"generatedAt":{"type":"string","format":"date-time"},"expiresAt":{"type":"string","format":"date-time"},"metadata":{"type":"object","additionalProperties":true},"contentDigest":{"type":"string"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["requestedBy","filters","reportType","format","status","attempts","expiresAt","_id"]}},"total":{"type":"number"},"page":{"type":"number"},"limit":{"type":"number"}},"required":["items","total","page","limit"]}`. See `docs/openapi.yaml` operation `get_api_v1_reports` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus REPORT_UNAVAILABLE, REPORT_NOT_READY, REPORT_CONTENT_MISMATCH. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 68. POST `/api/v1/reports`
+### 71. POST `/api/v1/reports`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.
 
@@ -4166,7 +4320,8 @@ null
         "UPLOAD_ERRORS",
         "OVERLAP_CASES",
         "IDENTITY_STATUS",
-        "ACADEMIC_YEAR_COMPLIANCE"
+        "ACADEMIC_YEAR_COMPLIANCE",
+        "STUDENT_STATUS_DISTRIBUTION"
       ]
     },
     "format": {
@@ -4242,7 +4397,7 @@ null
 
 **Frontend handling:** Queued, not complete: save job ID, poll, review status and expiry.
 
-### 69. GET `/api/v1/reports/{id}`
+### 72. GET `/api/v1/reports/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.
 
@@ -4276,13 +4431,13 @@ null
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"requestedBy":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"filters":{"type":"object","additionalProperties":true},"reportType":{"type":"string","enum":["ENROLMENT_SUMMARY","INTAKE_UTILIZATION","CATEGORY_UTILIZATION","UPLOAD_ERRORS","OVERLAP_CASES","IDENTITY_STATUS","ACADEMIC_YEAR_COMPLIANCE"]},"format":{"type":"string","enum":["JSON","CSV"]},"status":{"type":"string","enum":["PENDING","PROCESSING","COMPLETED","FAILED"]},"attempts":{"type":"number"},"failureCode":{"type":"string"},"generatedAt":{"type":"string","format":"date-time"},"expiresAt":{"type":"string","format":"date-time"},"metadata":{"type":"object","additionalProperties":true},"contentDigest":{"type":"string"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["requestedBy","filters","reportType","format","status","attempts","expiresAt","_id"]}`. See `docs/openapi.yaml` operation `get_api_v1_reports_id_` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"requestedBy":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"filters":{"type":"object","additionalProperties":true},"reportType":{"type":"string","enum":["ENROLMENT_SUMMARY","INTAKE_UTILIZATION","CATEGORY_UTILIZATION","UPLOAD_ERRORS","OVERLAP_CASES","IDENTITY_STATUS","ACADEMIC_YEAR_COMPLIANCE","STUDENT_STATUS_DISTRIBUTION"]},"format":{"type":"string","enum":["JSON","CSV"]},"status":{"type":"string","enum":["PENDING","PROCESSING","COMPLETED","FAILED"]},"attempts":{"type":"number"},"failureCode":{"type":"string"},"generatedAt":{"type":"string","format":"date-time"},"expiresAt":{"type":"string","format":"date-time"},"metadata":{"type":"object","additionalProperties":true},"contentDigest":{"type":"string"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["requestedBy","filters","reportType","format","status","attempts","expiresAt","_id"]}`. See `docs/openapi.yaml` operation `get_api_v1_reports_id_` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus REPORT_UNAVAILABLE, REPORT_NOT_READY, REPORT_CONTENT_MISMATCH. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 70. GET `/api/v1/reports/{id}/download`
+### 73. GET `/api/v1/reports/{id}/download`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.
 
@@ -4309,7 +4464,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 71. GET `/api/v1/reports/prevalidation`
+### 74. GET `/api/v1/reports/prevalidation`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN. **Scope:** AICTE broad scope or institution administrator with active admin membership and explicit institution. Downloads recheck current scope; inaccessible report IDs return 404.
 
@@ -4408,7 +4563,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 72. GET `/api/v1/seat-categories`
+### 75. GET `/api/v1/seat-categories`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** All authenticated roles can read these bounded global master lists (first 100).
 
@@ -4439,7 +4594,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 73. POST `/api/v1/seat-categories`
+### 76. POST `/api/v1/seat-categories`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -4493,7 +4648,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 74. PATCH `/api/v1/seat-categories/{id}`
+### 77. PATCH `/api/v1/seat-categories/{id}`
 
 **Roles:** AICTE_ADMIN. **Scope:** Authenticated account; additional object permissions enforced server-side.
 
@@ -4547,7 +4702,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 75. GET `/api/v1/students`
+### 78. GET `/api/v1/students`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -4614,13 +4769,13 @@ null
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","status","version","_id"]}},"total":{"type":"number"},"page":{"type":"number"},"limit":{"type":"number"}},"required":["items","total","page","limit"]}`. See `docs/openapi.yaml` operation `get_api_v1_students` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"nriStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"ociStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"foreignNationalStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","nriStatus","ociStatus","foreignNationalStatus","status","version","_id"]}},"total":{"type":"number"},"page":{"type":"number"},"limit":{"type":"number"}},"required":["items","total","page","limit"]}`. See `docs/openapi.yaml` operation `get_api_v1_students` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus IDENTITY_REVIEW_REQUIRED, IDENTITY_ALREADY_LINKED, WRITE_CONFLICT, INVALID_STUDENT_ACCOUNT, IDENTITY_KEY_VERSION_UNAVAILABLE, MOCK_PROVIDER_DISABLED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 76. POST `/api/v1/students`
+### 79. POST `/api/v1/students`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -4654,6 +4809,30 @@ null
       "format": "date",
       "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
     },
+    "nriStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ]
+    },
+    "ociStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ]
+    },
+    "foreignNationalStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ]
+    },
     "apaarId": {
       "type": "string",
       "pattern": "^\\d{12}$"
@@ -4680,11 +4859,23 @@ null
   "data": {
     "studentId": "000000000000000000000001",
     "identityStatus": "Synthetic example",
+    "identityAssessment": {
+      "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+      "identifierPresence": "LINKED",
+      "formatStatus": "VALID_AT_LINK",
+      "verificationStatus": "Synthetic example",
+      "officialVerificationAvailable": false,
+      "reviewRequired": false,
+      "warnings": []
+    },
     "profile": {
       "student": "000000000000000000000001",
       "institution": "000000000000000000000001",
       "institutionStudentId": "Synthetic example",
       "displayName": "Synthetic example",
+      "nriStatus": "YES",
+      "ociStatus": "YES",
+      "foreignNationalStatus": "YES",
       "status": "ACTIVE",
       "version": 1,
       "_id": "000000000000000000000001"
@@ -4693,13 +4884,13 @@ null
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"studentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"identityStatus":{"type":"string"},"profile":{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","status","version","_id"]}},"required":["studentId","identityStatus","profile"]}`. See `docs/openapi.yaml` operation `post_api_v1_students` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"studentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"identityStatus":{"type":"string"},"identityAssessment":{"type":"object","properties":{"policy":{"const":"ALLOW_WITH_REVIEW_FLAGS_V1"},"identifierPresence":{"type":"string","enum":["LINKED","MISSING"]},"formatStatus":{"type":"string","enum":["VALID_AT_LINK","NOT_PROVIDED"]},"verificationStatus":{"type":"string"},"officialVerificationAvailable":{"const":false},"reviewRequired":{"type":"boolean"},"warnings":{"type":"array","items":{"type":"string"}}},"required":["policy","identifierPresence","formatStatus","verificationStatus","officialVerificationAvailable","reviewRequired","warnings"]},"profile":{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"nriStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"ociStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"foreignNationalStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","nriStatus","ociStatus","foreignNationalStatus","status","version","_id"]}},"required":["studentId","identityStatus","identityAssessment","profile"]}`. See `docs/openapi.yaml` operation `post_api_v1_students` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus IDENTITY_REVIEW_REQUIRED, IDENTITY_ALREADY_LINKED, WRITE_CONFLICT, INVALID_STUDENT_ACCOUNT, IDENTITY_KEY_VERSION_UNAVAILABLE, MOCK_PROVIDER_DISABLED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 77. GET `/api/v1/students/{id}`
+### 80. GET `/api/v1/students/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT. **Scope:** Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.
 
@@ -4732,18 +4923,27 @@ null
   "data": {
     "studentId": "000000000000000000000001",
     "identityStatus": "Synthetic example",
+    "identityAssessment": {
+      "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+      "identifierPresence": "LINKED",
+      "formatStatus": "VALID_AT_LINK",
+      "verificationStatus": "Synthetic example",
+      "officialVerificationAvailable": false,
+      "reviewRequired": false,
+      "warnings": []
+    },
     "profiles": []
   }
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"studentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"identityStatus":{"type":"string"},"profiles":{"type":"array","items":{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","status","version","_id"]}}},"required":["studentId","identityStatus","profiles"]}`. See `docs/openapi.yaml` operation `get_api_v1_students_id_` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"studentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"identityStatus":{"type":"string"},"identityAssessment":{"type":"object","properties":{"policy":{"const":"ALLOW_WITH_REVIEW_FLAGS_V1"},"identifierPresence":{"type":"string","enum":["LINKED","MISSING"]},"formatStatus":{"type":"string","enum":["VALID_AT_LINK","NOT_PROVIDED"]},"verificationStatus":{"type":"string"},"officialVerificationAvailable":{"const":false},"reviewRequired":{"type":"boolean"},"warnings":{"type":"array","items":{"type":"string"}}},"required":["policy","identifierPresence","formatStatus","verificationStatus","officialVerificationAvailable","reviewRequired","warnings"]},"profiles":{"type":"array","items":{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"nriStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"ociStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"foreignNationalStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","nriStatus","ociStatus","foreignNationalStatus","status","version","_id"]}}},"required":["studentId","identityStatus","identityAssessment","profiles"]}`. See `docs/openapi.yaml` operation `get_api_v1_students_id_` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus IDENTITY_REVIEW_REQUIRED, IDENTITY_ALREADY_LINKED, WRITE_CONFLICT, INVALID_STUDENT_ACCOUNT, IDENTITY_KEY_VERSION_UNAVAILABLE, MOCK_PROVIDER_DISABLED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 78. PATCH `/api/v1/students/{id}`
+### 81. PATCH `/api/v1/students/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -4780,6 +4980,30 @@ null
         "INACTIVE"
       ]
     },
+    "nriStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ]
+    },
+    "ociStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ]
+    },
+    "foreignNationalStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ]
+    },
     "version": {
       "type": "integer",
       "exclusiveMinimum": 0,
@@ -4804,6 +5028,9 @@ null
     "institution": "000000000000000000000001",
     "institutionStudentId": "Synthetic example",
     "displayName": "Synthetic example",
+    "nriStatus": "YES",
+    "ociStatus": "YES",
+    "foreignNationalStatus": "YES",
     "status": "ACTIVE",
     "version": 1,
     "_id": "000000000000000000000001"
@@ -4811,13 +5038,13 @@ null
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","status","version","_id"]}`. See `docs/openapi.yaml` operation `patch_api_v1_students_id_` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"displayName":{"type":"string"},"dateOfBirth":{"type":"string","format":"date-time"},"nriStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"ociStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"foreignNationalStatus":{"type":"string","enum":["YES","NO","UNKNOWN"]},"status":{"type":"string","enum":["ACTIVE","INACTIVE"]},"version":{"type":"number"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"__v":{"type":"number"}},"required":["student","institution","institutionStudentId","displayName","nriStatus","ociStatus","foreignNationalStatus","status","version","_id"]}`. See `docs/openapi.yaml` operation `patch_api_v1_students_id_` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus IDENTITY_REVIEW_REQUIRED, IDENTITY_ALREADY_LINKED, WRITE_CONFLICT, INVALID_STUDENT_ACCOUNT, IDENTITY_KEY_VERSION_UNAVAILABLE, MOCK_PROVIDER_DISABLED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 79. POST `/api/v1/students/{id}/account-link`
+### 82. POST `/api/v1/students/{id}/account-link`
 
 **Roles:** AICTE_ADMIN. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -4862,7 +5089,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 80. POST `/api/v1/students/{id}/apaar/link`
+### 83. POST `/api/v1/students/{id}/apaar/link`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -4912,7 +5139,100 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 81. GET `/api/v1/students/{id}/identity-status`
+### 84. POST `/api/v1/students/{id}/certificate-print-data`
+
+**Roles:** INSTITUTION_ADMIN. **Scope:** Active own INSTITUTION_ADMIN and membership, ACTIVE institution/profile/enrolment/offering/reservation. Default REDACTED. FULL needs current regulator print authorization and explicit unexpired enrolment-bound consentId from the current linked student; audit and no-store. Not degree issuance.
+
+**Headers:** Authorization: Bearer <accessToken>.  Content-Type: application/json.
+
+**Query schema:**
+```json
+[]
+```
+
+**Request body schema:**
+```json
+{
+  "type": "object",
+  "properties": {
+    "institution": {
+      "type": "string",
+      "pattern": "^[a-f\\d]{24}$"
+    },
+    "enrolment": {
+      "type": "string",
+      "pattern": "^[a-f\\d]{24}$"
+    },
+    "disclosure": {
+      "default": "REDACTED",
+      "type": "string",
+      "enum": [
+        "REDACTED",
+        "FULL"
+      ]
+    },
+    "consentId": {
+      "type": "string",
+      "pattern": "^[a-f\\d]{24}$"
+    },
+    "purposeCode": {
+      "type": "string",
+      "const": "CERTIFICATE_PRINT_PREPARATION"
+    }
+  },
+  "required": [
+    "institution",
+    "enrolment",
+    "purposeCode"
+  ],
+  "additionalProperties": false
+}
+```
+
+**HTTP 200 success example (synthetic):**
+```json
+{
+  "success": true,
+  "message": "Synthetic example",
+  "data": {
+    "purpose": "CERTIFICATE_PRINT_PREPARATION",
+    "disclosure": "REDACTED",
+    "institution": {
+      "id": "000000000000000000000001",
+      "name": "Synthetic example",
+      "pid": "Synthetic example"
+    },
+    "studentId": "000000000000000000000001",
+    "enrolmentId": "000000000000000000000001",
+    "institutionStudentId": "Synthetic example",
+    "apaarId": null,
+    "apaarDisplay": "************",
+    "identityAssessment": {
+      "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+      "identifierPresence": "LINKED",
+      "formatStatus": "VALID_AT_LINK",
+      "verificationStatus": "Synthetic example",
+      "officialVerificationAvailable": false,
+      "reviewRequired": false,
+      "warnings": []
+    },
+    "eligibility": "ACTIVE_RECORD_PRINT_PREPARATION_ONLY",
+    "degreeAwardingStatus": "NOT_INDEPENDENTLY_VERIFIED",
+    "officialCertificate": false,
+    "qualificationCertified": false,
+    "generatedAt": "2026-08-01T00:00:00Z",
+    "notice": "Synthetic example"
+  }
+}
+```
+
+**Response contract:** `{"type":"object","properties":{"purpose":{"const":"CERTIFICATE_PRINT_PREPARATION"},"disclosure":{"type":"string","enum":["REDACTED","FULL"]},"institution":{"type":"object","properties":{"id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"name":{"type":"string"},"pid":{"type":"string"}},"required":["id","name","pid"]},"studentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"enrolmentId":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"institutionStudentId":{"type":"string"},"apaarId":{"anyOf":[{"type":"string","pattern":"^\\d{12}$"},{"type":"null"}],"example":null},"apaarDisplay":{"type":"string","example":"************"},"identityAssessment":{"type":"object","properties":{"policy":{"const":"ALLOW_WITH_REVIEW_FLAGS_V1"},"identifierPresence":{"type":"string","enum":["LINKED","MISSING"]},"formatStatus":{"type":"string","enum":["VALID_AT_LINK","NOT_PROVIDED"]},"verificationStatus":{"type":"string"},"officialVerificationAvailable":{"const":false},"reviewRequired":{"type":"boolean"},"warnings":{"type":"array","items":{"type":"string"}}},"required":["policy","identifierPresence","formatStatus","verificationStatus","officialVerificationAvailable","reviewRequired","warnings"]},"eligibility":{"const":"ACTIVE_RECORD_PRINT_PREPARATION_ONLY"},"degreeAwardingStatus":{"const":"NOT_INDEPENDENTLY_VERIFIED"},"officialCertificate":{"const":false},"qualificationCertified":{"const":false},"generatedAt":{"type":"string","format":"date-time"},"notice":{"type":"string"}},"required":["purpose","disclosure","institution","studentId","enrolmentId","institutionStudentId","apaarId","apaarDisplay","identityAssessment","eligibility","degreeAwardingStatus","officialCertificate","qualificationCertified","generatedAt","notice"]}`. See `docs/openapi.yaml` operation `post_api_v1_students_id_certificate_print_data` and generated `paths` types for nested fields/optional projections.
+
+**Relevant errors:** common errors above plus PRINT_RECORD_UNAVAILABLE, PRINT_AUTHORIZATION_REQUIRED, PRINT_CONSENT_REQUIRED, IDENTITY_NOT_LINKED, IDENTITY_KEY_VERSION_UNAVAILABLE, IDENTITY_DECRYPTION_FAILED. These family lists include service possibilities; inspect status/code, never infer identity existence.
+
+**Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
+
+### 85. GET `/api/v1/students/{id}/identity-status`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT. **Scope:** Regulator, owning linked student, or writer with active institution membership and association. Student read requires institution query for institutional callers.
 
@@ -4948,18 +5268,27 @@ null
       "status": "UNVERIFIED",
       "_id": "000000000000000000000001"
     },
-    "official": false
+    "official": false,
+    "identityAssessment": {
+      "policy": "ALLOW_WITH_REVIEW_FLAGS_V1",
+      "identifierPresence": "LINKED",
+      "formatStatus": "VALID_AT_LINK",
+      "verificationStatus": "Synthetic example",
+      "officialVerificationAvailable": false,
+      "reviewRequired": false,
+      "warnings": []
+    }
   }
 }
 ```
 
-**Response contract:** `{"type":"object","properties":{"identityStatus":{"type":"string"},"latestEvent":{"anyOf":[{"type":"object","properties":{"status":{"type":"string","enum":["UNVERIFIED","MOCK_VERIFIED","VERIFICATION_FAILED"]},"provider":{"type":"string"},"providerVersion":{"type":"string"},"reasonCode":{"type":"string"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"}},"required":["status","_id"]},{"type":"null"}]},"official":{"const":false}},"required":["identityStatus","latestEvent","official"]}`. See `docs/openapi.yaml` operation `get_api_v1_students_id_identity_status` and generated `paths` types for nested fields/optional projections.
+**Response contract:** `{"type":"object","properties":{"identityStatus":{"type":"string"},"latestEvent":{"anyOf":[{"type":"object","properties":{"status":{"type":"string","enum":["UNVERIFIED","MOCK_VERIFIED","VERIFICATION_FAILED"]},"provider":{"type":"string"},"providerVersion":{"type":"string"},"reasonCode":{"type":"string"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"}},"required":["status","_id"]},{"type":"null"}]},"official":{"const":false},"identityAssessment":{"type":"object","properties":{"policy":{"const":"ALLOW_WITH_REVIEW_FLAGS_V1"},"identifierPresence":{"type":"string","enum":["LINKED","MISSING"]},"formatStatus":{"type":"string","enum":["VALID_AT_LINK","NOT_PROVIDED"]},"verificationStatus":{"type":"string"},"officialVerificationAvailable":{"const":false},"reviewRequired":{"type":"boolean"},"warnings":{"type":"array","items":{"type":"string"}}},"required":["policy","identifierPresence","formatStatus","verificationStatus","officialVerificationAvailable","reviewRequired","warnings"]}},"required":["identityStatus","latestEvent","official","identityAssessment"]}`. See `docs/openapi.yaml` operation `get_api_v1_students_id_identity_status` and generated `paths` types for nested fields/optional projections.
 
 **Relevant errors:** common errors above plus IDENTITY_REVIEW_REQUIRED, IDENTITY_ALREADY_LINKED, WRITE_CONFLICT, INVALID_STUDENT_ACCOUNT, IDENTITY_KEY_VERSION_UNAVAILABLE, MOCK_PROVIDER_DISABLED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 82. POST `/api/v1/students/{id}/verify-apaar`
+### 86. POST `/api/v1/students/{id}/verify-apaar`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -5009,7 +5338,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409. MOCKED, never government-certified.
 
-### 83. POST `/api/v1/transfers`
+### 87. POST `/api/v1/transfers`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5096,7 +5425,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 84. GET `/api/v1/transfers/{id}`
+### 88. GET `/api/v1/transfers/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5139,7 +5468,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 85. POST `/api/v1/transfers/{id}/approve`
+### 89. POST `/api/v1/transfers/{id}/approve`
 
 **Roles:** AICTE_ADMIN. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5194,7 +5523,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 86. POST `/api/v1/transfers/{id}/reject`
+### 90. POST `/api/v1/transfers/{id}/reject`
 
 **Roles:** AICTE_ADMIN. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5249,7 +5578,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 87. GET `/api/v1/uploads/{id}`
+### 91. GET `/api/v1/uploads/{id}`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5285,11 +5614,11 @@ null
 
 **Response contract:** `{"type":"object","properties":{"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"status":{"type":"string","enum":["PENDING","VALIDATING","VALIDATED","COMMITTING","COMPLETED","PARTIAL","FAILED"]},"totalRows":{"type":"number"},"validRows":{"type":"number"},"invalidRows":{"type":"number"},"committedRows":{"type":"number"},"attempts":{"type":"number"},"failureCode":{"type":"string"},"payloadPurgedAt":{"type":"string","format":"date-time"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["institution","status","totalRows","validRows","invalidRows","committedRows","attempts","_id"]}`. See `docs/openapi.yaml` operation `get_api_v1_uploads_id_` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 88. POST `/api/v1/uploads/{id}/commit`
+### 92. POST `/api/v1/uploads/{id}/commit`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5329,11 +5658,11 @@ null
 
 **Response contract:** `{"type":"object","properties":{"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"status":{"type":"string","enum":["PENDING","VALIDATING","VALIDATED","COMMITTING","COMPLETED","PARTIAL","FAILED"]},"totalRows":{"type":"number"},"validRows":{"type":"number"},"invalidRows":{"type":"number"},"committedRows":{"type":"number"},"attempts":{"type":"number"},"failureCode":{"type":"string"},"payloadPurgedAt":{"type":"string","format":"date-time"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["institution","status","totalRows","validRows","invalidRows","committedRows","attempts","_id"]}`. See `docs/openapi.yaml` operation `post_api_v1_uploads_id_commit` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Queued, not complete: save job ID, poll, review status and expiry.
 
-### 89. GET `/api/v1/uploads/{id}/error-report`
+### 93. GET `/api/v1/uploads/{id}/error-report`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5356,11 +5685,11 @@ null
 
 **Response contract:** `Raw file response`. See `docs/openapi.yaml` operation `get_api_v1_uploads_id_error_report` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 90. GET `/api/v1/uploads/{id}/results`
+### 94. GET `/api/v1/uploads/{id}/results`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5413,11 +5742,11 @@ null
 
 **Response contract:** `{"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"rowNumber":{"type":"number"},"status":{"type":"string","enum":["VALID","INVALID","COMMITTED","FAILED"]},"errorCodes":{"type":"array","items":{"type":"string"}},"warnings":{"type":"array","items":{"type":"string"}},"student":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"enrolment":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"}},"required":["rowNumber","status","_id"]}},"total":{"type":"number"},"page":{"type":"number"},"limit":{"type":"number"}},"required":["items","total","page","limit"]}`. See `docs/openapi.yaml` operation `get_api_v1_uploads_id_results` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 91. POST `/api/v1/uploads/{id}/retry`
+### 95. POST `/api/v1/uploads/{id}/retry`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5457,11 +5786,11 @@ null
 
 **Response contract:** `{"type":"object","properties":{"institution":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"status":{"type":"string","enum":["PENDING","VALIDATING","VALIDATED","COMMITTING","COMPLETED","PARTIAL","FAILED"]},"totalRows":{"type":"number"},"validRows":{"type":"number"},"invalidRows":{"type":"number"},"committedRows":{"type":"number"},"attempts":{"type":"number"},"failureCode":{"type":"string"},"payloadPurgedAt":{"type":"string","format":"date-time"},"_id":{"type":"string","pattern":"^[a-fA-F0-9]{24}$","example":"000000000000000000000001"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}},"required":["institution","status","totalRows","validRows","invalidRows","committedRows","attempts","_id"]}`. See `docs/openapi.yaml` operation `post_api_v1_uploads_id_retry` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Queued, not complete: save job ID, poll, review status and expiry.
 
-### 92. POST `/api/v1/uploads/students`
+### 96. POST `/api/v1/uploads/students`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF. **Scope:** Institution writers need active membership and student association; regulator broad access. existingStudent association/account-link restricted to regulator.
 
@@ -5488,7 +5817,7 @@ null
     "file": {
       "type": "string",
       "format": "binary",
-      "description": "CSV or XLSX, maximum 2 MiB / 1000 rows; exact ten-column template."
+      "description": "CSV or XLSX, maximum 2 MiB / 1000 rows; exact legacy ten-column or extended thirteen-column template."
     }
   },
   "required": [
@@ -5524,7 +5853,7 @@ null
 
 **Frontend handling:** Queued, not complete: save job ID, poll, review status and expiry.
 
-### 93. GET `/api/v1/uploads/template`
+### 97. GET `/api/v1/uploads/template`
 
 **Roles:** AICTE_ADMIN, INSTITUTION_ADMIN, INSTITUTION_STAFF, STUDENT, EMPLOYER. **Scope:** Own job institution or involved institution membership; AICTE sees regulatory details, institution transfer/conflict views are redacted. Reviews/resolution regulator-only.
 
@@ -5542,16 +5871,16 @@ null
 
 **HTTP 200 success example (synthetic):**
 ```json
-"institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType\n"
+"institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType,nriStatus,ociStatus,foreignNationalStatus\n"
 ```
 
 **Response contract:** `Raw file response`. See `docs/openapi.yaml` operation `get_api_v1_uploads_template` and generated `paths` types for nested fields/optional projections.
 
-**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE. These family lists include service possibilities; inspect status/code, never infer identity existence.
+**Relevant errors:** common errors above plus UPLOAD_NOT_VALIDATED, UPLOAD_NOT_FAILED, UPLOAD_PAYLOAD_EXPIRED, IDEMPOTENCY_CONFLICT, FILE_REQUIRED, UNSUPPORTED_UPLOAD_TYPE; row failures INVALID_STUDENT_STATUS, CONFLICTING_STUDENT_STATUS, STUDENT_STATUS_CHANGED. These family lists include service possibilities; inspect status/code, never infer identity existence.
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 94. POST `/api/v1/verification/employers`
+### 98. POST `/api/v1/verification/employers`
 
 **Roles:** AICTE_ADMIN. **Scope:** AICTE governs an existing active EMPLOYER account; no employer directory or account creation endpoint.
 
@@ -5617,7 +5946,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 95. POST `/api/v1/verification/invitations`
+### 99. POST `/api/v1/verification/invitations`
 
 **Roles:** STUDENT. **Scope:** Canonical student account linkage required; own consent request, enrolment or credential only. Regulators cannot grant consent.
 
@@ -5693,7 +6022,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 96. GET `/api/v1/verification/requests`
+### 100. GET `/api/v1/verification/requests`
 
 **Roles:** EMPLOYER. **Scope:** Active account and APPROVED employer profile; employer-bound invitation/request/credential only.
 
@@ -5750,7 +6079,7 @@ null
 
 **Frontend handling:** Show scoped loading/empty/error state; clear previous account/institution data on scope change.
 
-### 97. POST `/api/v1/verification/requests`
+### 101. POST `/api/v1/verification/requests`
 
 **Roles:** EMPLOYER. **Scope:** Active account and APPROVED employer profile; employer-bound invitation/request/credential only.
 
@@ -5828,7 +6157,7 @@ null
 
 **Frontend handling:** Submit once; preserve idempotency key if applicable, reload state/version on 409.
 
-### 98. GET `/api/v1/verification/requests/{id}/result`
+### 102. GET `/api/v1/verification/requests/{id}/result`
 
 **Roles:** EMPLOYER. **Scope:** Active account and APPROVED employer profile; employer-bound invitation/request/credential only.
 
@@ -5908,8 +6237,8 @@ Use exact generated input schemas in section 3; trim only where specified. Dates
 
 | Form | Route / fields / lifecycle | UI handling |
 |---|---|---|
-| Student registration | POST `/students`: institution, institutionStudentId, displayName required; dateOfBirth, apaarId, existingStudent optional. apaarId is structurally 12 digits only. existingStudent is regulator-only association after review | 201 gives studentId/profile/identityStatus. Missing APAAR allowed; show UNVERIFIED without blocking admission. Duplicate roll/identity requires review, not a new identity guessed from another record |
-| Own institution profile update | PATCH `/students/:id`: institution and integer version required; optional displayName/dateOfBirth/status ACTIVE or INACTIVE; at least one change | Save returned profile/version. 409 WRITE_CONFLICT → refetch and show compare UI. No overwrite of another institution's profile |
+| Student registration | POST `/students`: institution, institutionStudentId, displayName required; dateOfBirth, apaarId, existingStudent, nriStatus, ociStatus, foreignNationalStatus optional. Declaration values YES/NO/UNKNOWN; omitted legacy values read UNKNOWN. apaarId is structurally 12 digits only. existingStudent is regulator-only association after review | 201 gives studentId/profile/identityStatus. Missing APAAR allowed; show UNVERIFIED without blocking admission. Duplicate roll/identity requires review, not a new identity guessed from another record |
+| Own institution profile update | PATCH `/students/:id`: institution and integer version required; optional displayName/dateOfBirth/status ACTIVE or INACTIVE and nriStatus/ociStatus/foreignNationalStatus; version concurrency enforced | Save returned profile/version. 409 WRITE_CONFLICT → refetch and show compare UI. No overwrite of another institution's profile |
 | Protected APAAR link | POST `/students/:id/apaar/link`: institution, apaarId. Repeat identical link is idempotent; different value requires reviewed correction | Only linked:true returned. Never display ciphertext/HMAC or assume ID format proves authenticity |
 | Mock verification | POST `/students/:id/verify-apaar`: institution | Explicit **MOCKED** badge; outcome and verificationStatus describe simulation. Production refuses mock provider |
 | Draft admission | POST `/enrolments`: student, allocation, institutionStudentId, admissionDate, startsOn, idempotencyKey required; entryType defaults REGULAR; optional endsOn | Allocation determines institution/offering/year/category. Dates must fit year; endsOn≥startsOn. Keep one key for exact retry; new edited request needs a new key |
@@ -5923,20 +6252,20 @@ Example registration: `{"institution":"<institutionId>","institutionStudentId":"
 
 Example draft: `{"student":"<studentId>","allocation":"<allocationId>","institutionStudentId":"DEMO-101","admissionDate":"2026-08-01","startsOn":"2026-08-01","idempotencyKey":"demo-admission-unique-101"}`.
 
-No general admission delete exists. UNDER_REVIEW cannot be activated directly. COMPLETED is reserved in storage; graduation workflow is NOT IMPLEMENTED. Legacy ACCEPTED requires operator reconciliation. NRI/OCI/FN/category labels are not proof of eligibility; configured approvals govern pools.
+No general admission delete exists. UNDER_REVIEW cannot be activated directly. COMPLETED is reserved in storage; graduation workflow is NOT IMPLEMENTED. Legacy ACCEPTED requires operator reconciliation. NRI/OCI/FN profile declarations and category labels are not proof of eligibility; configured approvals govern seat pools. Missing APAAR does not become verified on activation: identityAssessment explicitly reports presence, format-at-link, verificationStatus and reviewRequired under ALLOW_WITH_REVIEW_FLAGS_V1.
 
 ## 6. Bulk upload UI state machine
 
 `SELECT FILE → PENDING → VALIDATING → VALIDATED → REVIEW RESULTS → COMMIT CONFIRMATION → COMMITTING → COMPLETED / PARTIAL / FAILED`.
 
-GET `/uploads/template` returns a header-only CSV. Exact ten ordered headers:
+GET `/uploads/template` returns a header-only CSV. The new template has13 exact ordered headers; the original10-column header/rows ending at entryType are also accepted for compatibility:
 
 ```csv
-institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType
-DEMO-UP-1,Synthetic Upload Student,,,<allocationId>,<yearId>,2026-08-01,2026-08-01,,REGULAR
+institutionStudentId,displayName,dateOfBirth,apaarId,allocation,academicYear,admissionDate,startsOn,endsOn,entryType,nriStatus,ociStatus,foreignNationalStatus
+DEMO-UP-1,Synthetic Upload Student,,,<allocationId>,<yearId>,2026-08-01,2026-08-01,,REGULAR,YES,UNKNOWN,NO
 ```
 
-Maximum 2 MiB, 1000 data rows, CSV text/csv or application/csv with .csv extension; XLSX MIME application/vnd.openxmlformats-officedocument.spreadsheetml.sheet and .xlsx. No extra sheets, hidden payloads, macros or formula expressions; server performs archive/XML/file checks. Plain spreadsheet cell values only. Required values: roll/name/allocation/year/admission/start/entryType. DOB/APAAR/end may be blank. Every row must belong to the upload's institution. Validation is a preview; capacity/permissions are checked again when committing.
+Maximum 2 MiB, 1000 data rows, CSV text/csv or application/csv with .csv extension; XLSX MIME application/vnd.openxmlformats-officedocument.spreadsheetml.sheet and .xlsx. No extra sheets, hidden payloads, macros or formula expressions; server performs archive/XML/file checks. Plain spreadsheet cell values only. Required values: roll/name/allocation/year/admission/start/entryType. DOB/APAAR/end may be blank. Extended status cells accept exact uppercase YES/NO/UNKNOWN; blank means unknown on a new profile, and leaves an existing declaration unspecified. Other values produce INVALID_STUDENT_STATUS. Existing-profile conflicting declarations produce CONFLICTING_STUDENT_STATUS; uploads never overwrite them. Correct the scoped profile through the versioned PATCH first. A declaration changed after preview causes STUDENT_STATUS_CHANGED at commit; reload and explicitly review the source/profile before retrying. Every row must belong to the upload's institution. Validation is a preview; capacity/permissions are checked again when committing.
 
 ```ts
 const form = new FormData();
@@ -5999,7 +6328,7 @@ Defaults: invitation900, request86400, approval3600, credential3600 seconds. Ser
 
 ## 9. Reporting UI
 
-AICTE_ADMIN or active own INSTITUTION_ADMIN only. POST `/reports` with `{"reportType":"INTAKE_UTILIZATION","format":"JSON","filters":{"institution":"<id>","academicYear":"<id>"}}`. Allowed types: ENROLMENT_SUMMARY,INTAKE_UTILIZATION,CATEGORY_UTILIZATION,UPLOAD_ERRORS,OVERLAP_CASES,IDENTITY_STATUS,ACADEMIC_YEAR_COMPLIANCE. Format JSON or CSV; PDF and official filing are NOT IMPLEMENTED.
+AICTE_ADMIN or active own INSTITUTION_ADMIN only. POST `/reports` with `{"reportType":"INTAKE_UTILIZATION","format":"JSON","filters":{"institution":"<id>","academicYear":"<id>"}}`. Allowed types: ENROLMENT_SUMMARY,INTAKE_UTILIZATION,CATEGORY_UTILIZATION,UPLOAD_ERRORS,OVERLAP_CASES,IDENTITY_STATUS,ACADEMIC_YEAR_COMPLIANCE,STUDENT_STATUS_DISTRIBUTION. Format JSON or CSV; PDF and official filing are NOT IMPLEMENTED.
 
 HTTP 202 returns reportId/status=PENDING/expiresAt. Poll GET `/reports/:id` every 2–3 seconds with backoff; stop at COMPLETED/FAILED or expiry. List GET `/reports?institution=&academicYear=&page=&limit=` gives bounded metadata. States PENDING→PROCESSING→COMPLETED/FAILED. Worker report lease120 seconds, three stale attempts before exhaustion. No worker heartbeat endpoint exists; pending age is an operational signal.
 
@@ -6091,3 +6420,48 @@ Run `npm run db:seed`, then `npm run db:seed:governance`. The first creates the 
 Institution admin and staff accounts are **not automatically provisioned** by these existing seed commands. An authorized operator must create those controlled synthetic User accounts (bcrypt hash) and then use the actual membership API. There is no public registration endpoint. Frontend must obtain private test credentials through the team's secure local configuration, not this document/chat. Login failures after a seed rerun may mean an existing account preserved its original password.
 
 Use only fictional names and reserved example.invalid emails. The optional seed APAAR value is an explicit zero-padded synthetic fixture, never a genuine student's identity. Demo seeds and tests do not prove national scale or official data authenticity.
+
+
+## PS compliance handoff — statuses, identity review and secure print preparation
+
+### Profile form and reporting changes
+
+Add three independent selects to student registration/profile correction: `nriStatus`, `ociStatus`, `foreignNationalStatus`, each `YES | NO | UNKNOWN`. NRI means the institution declares an NRI classification for this student profile; OCI means it declares OCI cardholder/status; foreignNationalStatus means it declares foreign-national status. These are institution-submitted declarations, not legally verified citizenship/residency/immigration determinations. Do not infer one from another or force mutual exclusion. Different institutions keep their own recorded declarations. Do not change allocation selection or calculate quotas from these fields. Existing records require no migration; reads normalize absent fields to UNKNOWN. STUDENT can read linked profiles; only scoped institution writers/regulator can edit; employers receive none of these fields through their claim APIs.
+
+For regulatory dashboards use the existing report workflow with `reportType: "STUDENT_STATUS_DISTRIBUTION"`, JSON/CSV and normal scoped filters. Rows contain nriStatus/ociStatus/foreignNationalStatus/enrolmentStatus/enrolmentCount/distinctStudents. Counts derive from selected authoritative enrolments joined to their institution profile. Enrolment counts are additive across rows; distinctStudents is deduplicated within each row and can repeat across declaration groups/institutions. UNKNOWN includes old/missing profile fields; no optimistic default NO. Current profile declarations are not a historical admission-time citizenship snapshot. IDENTITY_STATUS reports now include `summary.identifierPresence` groups LINKED/MISSING plus the explicit admission policy. Neither report returns raw APAAR.
+
+Student creation, reading and identity-status responses now include `identityAssessment`:
+
+```json
+{"policy":"ALLOW_WITH_REVIEW_FLAGS_V1","identifierPresence":"MISSING","formatStatus":"NOT_PROVIDED","verificationStatus":"UNVERIFIED","officialVerificationAvailable":false,"reviewRequired":true,"warnings":["MISSING_APAAR","IDENTITY_NOT_OFFICIALLY_VERIFIED"]}
+```
+
+LINKED means protected vault presence; VALID_AT_LINK means the protected link workflow checked12-digit format, not identity authenticity. MOCK_VERIFIED is always simulated; mismatch/timeout retain distinct outcomes. Drafts and activation remain allowed with review flags to preserve the prototype's documented policy; missing-link activations append ADMISSION_IDENTITY_MISSING_REVIEW audit metadata. Prevalidation adds MISSING_APAAR_V1. No mock result or anomaly alone prohibits admission. Operators can run `npm run reconcile -- --identity` for bounded read-only key/ciphertext/duplicate/stale-assurance findings; no automatic correction is performed.
+
+### Structured certificate print support — no PDF or degree issuance
+
+Member2 integrates issuer/regulator actions; Member3 integrates student print consent. Do not reuse employer invitations/consent grants or add APAAR to employer claim types. Eligibility here means an ACTIVE institution/profile/program/enrolment and active seat reservation for administrative print preparation. Graduation/completion/marks/qualifications and genuine degree-awarding powers are not established by SatyaID.
+
+1. AICTE operator reviews external institutional authority outside SatyaID, then POST `/api/v1/institutions/<institutionId>/certificate-print-authorization`:
+
+```json
+{"status":"APPROVED","authorityReference":"SYNTHETIC_OPERATOR_REVIEW","expiresAt":"2027-01-01T00:00:00Z"}
+```
+
+Approval must expire in the future, within366 days. Use a suitable current date during the demo. SUSPENDED denies future full disclosure. This is an operator-attested integration permission; `degreeAwardingStatus` remains NOT_INDEPENDENTLY_VERIFIED. No ordinary institution actor can authorize itself.
+
+2. Linked STUDENT POST `/api/v1/enrolments/<ownActiveEnrolmentId>/certificate-print-consent` with `{"expiresInSeconds":900}` (60–86400, default900). Save consentId/expiry and share the safe reference with the intended institution through controlled onboarding. Every grant appends a new record. POST `/enrolments/<id>/certificate-print-consent/revoke` `{}` revokes all own grants for that enrolment, idempotently, including after withdrawal. Consent history is retained. There is no print-consent listing endpoint; this minimal contract uses known enrolment/grant IDs. Existing student enrolment discovery limitations still apply.
+
+3. Active own INSTITUTION_ADMIN POST `/api/v1/students/<studentId>/certificate-print-data`:
+
+```json
+{"institution":"<ownInstitutionId>","enrolment":"<ownActiveEnrolmentId>","purposeCode":"CERTIFICATE_PRINT_PREPARATION"}
+```
+
+Default REDACTED response includes institutionStudentId, `apaarId:null`, apaarDisplay=************ (or NOT_LINKED), identityAssessment, eligibility=ACTIVE_RECORD_PRINT_PREPARATION_ONLY, officialCertificate:false, qualificationCertified:false and notice. A redacted view does not require a full-disclosure grant/print authorization, but ownership and active-record eligibility still apply. AICTE/staff/students/employers do not call this issuer-only endpoint.
+
+4. FULL request adds `"disclosure":"FULL","consentId":"<currentOwnStudentPrintConsentId>"`. Only then can apaarId/apaarDisplay contain the12-digit identifier, after current regulator authorization, student linkage/account/consent, record and key checks. Unverified or MOCK_VERIFIED identifiers remain explicitly unverified/simulated in identityAssessment; they do not become certified. Missing identity returns409 IDENTITY_NOT_LINKED; unavailable keys/decryption fail closed503. Ineligible or mismatched records use404 PRINT_RECORD_UNAVAILABLE; cross-institution roles use403; absent/suspended/expired authorization uses403 PRINT_AUTHORIZATION_REQUIRED; missing/revoked/expired/wrong-student consent uses403 PRINT_CONSENT_REQUIRED.
+
+All print-support responses set no-store; the data endpoint also sets private, Pragma:no-cache and Expires:0. Fetch only on explicit user action, keep the payload in memory, exclude the page/body from session replay/analytics/APM, clear DOM/state after print/cancel, and never use a bearer URL or persistent client cache. No unencrypted server export/PDF is stored. Authorized printing creates a disclosed copy that revocation cannot recall. Audit records capture actor/action/enrolment/institution metadata, never plaintext identifiers. Render the disclaimer: **“Administrative print-support data; institution independently issues and validates any certificate.”**
+
+Frontend checklist additions: independent tri-state selects;13-column upload/review errors and legacy support; linked/missing/mock badges; declaration distribution report and denominator notes; student print grant/revoke UI; operator print-authorization UI; institution redacted preview and explicitly consented full display; no fake graduation/certificate validity claim. No actual frontend files are changed by this backend patch.
